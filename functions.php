@@ -69,7 +69,7 @@ new Justice\ContentQuality();
 new Justice\Core();
 new Justice\Documents();
 new Justice\Layout();
-new Justice\NginxCache();
+//new Justice\NginxCache(); //REVIEW
 new Justice\Posts();
 new Justice\Redirects();
 new Justice\Security();

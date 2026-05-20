@@ -1,5 +1,6 @@
 <?php
-
+/*
+REVIEW
 add_action('wp_enqueue_scripts', function () {
     wp_deregister_script('ccfw-script-frontend');
     wp_deregister_script('ccfw-script');
@@ -24,7 +25,7 @@ add_action('wp_enqueue_scripts', function () {
     wp_localize_script('ccfw-script', 'ccfwData', [
         'isHttps' => (int) is_ssl(),
     ]);
-});
+});*/
 
 
 /**

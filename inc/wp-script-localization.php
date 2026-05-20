@@ -47,7 +47,7 @@ class WpScriptLocalization
     public function addHooks(): void
     {
         // Initialise our custom WP_Scripts class.
-        add_action('init', [self::class, 'replaceWpScripts'], 100);
+        //add_action('init', [self::class, 'replaceWpScripts'], 100); //REVIEW
 
         // Load the script-localization.js script.
         // This script contains the mojLoadLocalizedData() function
