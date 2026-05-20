@@ -1,0 +1,6 @@
+{
+    "name": "ministryofjustice/justice",
+    "description": "Justice GovUK theme",
+    "type": "wordpress-theme",
+    "require": {}
+}
