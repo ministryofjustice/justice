@@ -1,0 +1,5 @@
+@use '../mixins.scss' as mixins;
+
+.link {
+    @include mixins.link;
+}

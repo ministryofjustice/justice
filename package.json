@@ -1,0 +1,63 @@
+{
+    "name": "justice.gov.uk",
+    "version": "2.0.0",
+    "description": "Node dependency manager of justice.gov.uk",
+    "main": "./src/js/app.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "dev": "npm run development",
+        "staging": "npm run production",
+        "hot": "npx mix watch --hot",
+        "watch": "npx mix watch",
+        "development": "npx mix",
+        "production": "npx mix --production"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/ministryofjustice/justice-gov-uk.git"
+    },
+    "author": "damien.wilson@digital.justice.gov.uk",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/ministryofjustice/justice-gov-uk/issues"
+    },
+    "homepage": "https://github.com/ministryofjustice/justice-gov-uk#readme",
+    "devDependencies": {
+        "@sentry/integrations": "^7.114.0",
+        "@tinypixelco/laravel-mix-wp-blocks": "1.2.0",
+        "@wordpress/babel-preset-default": "^8.20.0",
+        "@wordpress/data": "^10.14.0",
+        "@wordpress/dependency-extraction-webpack-plugin": "^6.14.0",
+        "@wordpress/icons": "^11.3.0",
+        "@wordpress/preferences": "^4.14.0",
+        "@wordpress/rich-text": "^7.14.0",
+        "dompurify": "^3.2.6",
+        "laravel-mix": "^6.0.49",
+        "react-icons": "^5.4.0",
+        "sass": "^1.96.0",
+        "sass-loader": "^12.6.0"
+    },
+    "devDependenciesComments": {
+        "@tinypixelco/laravel-mix-wp-blocks": [
+            "This package is used to compile WordPress blocks using Laravel Mix.",
+            "It allows us to import from @wordpress packages and generates a php manifest file.",
+            "But, it deosn't work with @wordpress/icons, because they aren't available in the browser's global wp object.",
+            "It's pinned to a version that has been reviewed via npmjs.com web view."
+        ],
+        "@wordpress/babel-preset-default": [
+            "This package was installed by @tinypixelco/laravel-mix-wp-blocks."
+        ],
+        "@wordpress/data": [
+            "This package was installed for types."
+        ],
+        "@wordpress/preferences": [
+            "This package was installed because @tinypixelco/laravel-mix-wp-blocks doesn't cover this module."
+        ],
+        "@wordpress/rich-text": [
+            "This package was installed for types."
+        ],
+        "sass-loader": [
+            "sass-loader@^12.3.0 is required by laravel-mix@6.0.49 to compile SASS files."
+        ]
+    }
+}

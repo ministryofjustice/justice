@@ -1,0 +1,335 @@
+<?php
+
+namespace MOJ\Justice;
+
+use WP_Error;
+use Roots\WPConfig\Config;
+use MOJ\ClusterHelper;
+
+/**
+ * Add a little security for WordPress
+ */
+class Security
+{
+
+    private $wp_version;
+    private $hashed_wp_version;
+
+    /**
+     * A list of known hosts.
+     */
+    private array $known_hosts = [
+        'api.deliciousbrains.com'
+    ];
+
+    /**
+     * The application host e.g. intranet.docker or intranet.justice.gov.uk
+     */
+    private string $home_host;
+
+    /**
+     * Set properties and run actions.
+     */
+    public function __construct()
+    {
+        // Get the WordPress version.
+        $this->wp_version = get_bloginfo('version');
+        // Hash the WP version number with a salt - let's borrow AUTH_SALT for this.
+        // This way a we get a unique hash per WP version but it's not reversible.
+        $this->hashed_wp_version = substr(hash('sha256', $this->wp_version . AUTH_SALT), 0, 6);
+
+        $this->home_host = parse_url(get_home_url(), PHP_URL_HOST);
+
+        $this->actions();
+
+        // Push the application host to known_hosts.
+        array_push($this->known_hosts, $this->home_host);
+
+        // Push the S3 bucket host to known_hosts.
+        if ($s3_bucket = env('AWS_S3_BUCKET')) {
+            array_push($this->known_hosts, $s3_bucket . ".s3.eu-west-2.amazonaws.com");
+        }
+
+        if ($custom_s3_host = env('AWS_S3_CUSTOM_HOST')) {
+            array_push($this->known_hosts, $custom_s3_host);
+        }
+
+        if (Config::get('WP_OFFLOAD_MEDIA_PRESET') === 'minio') {
+            array_push($this->known_hosts, 'minio');
+        }
+
+        if ($loopback_url = Config::get('WP_LOOPBACK')) {
+            // Push the loopback URL host to known_hosts.
+            array_push($this->known_hosts, parse_url($loopback_url, PHP_URL_HOST));
+        }
+
+        // Push the cache purge url host to known_hosts.
+        $cache_purge_url = Config::get('NGINX_PURGE_CACHE_URL');
+        if ($cache_purge_url) {
+            array_push($this->known_hosts, parse_url($cache_purge_url, PHP_URL_HOST));
+        }
+    }
+
+    /**
+     * Loads up actions that are called when WordPress initialises
+     *
+     * @return void
+     */
+    public function actions(): void
+    {
+        // No generator meta tag in the head
+        remove_action('wp_head', 'wp_generator');
+
+        add_filter('redirect_canonical', [$this, 'noRedirect404']);
+        add_filter('xmlrpc_enabled', '__return_false');
+        add_filter('wp_headers', [$this, 'headerMods']);
+        add_filter('auth_cookie_expiration', [$this, 'setLoginPeriod'], 10, 0);
+
+        // Prevent username enumeration via the login error message.
+        add_filter('login_errors', [__class__, 'secureLoginErrors']);
+
+        // Prevent username enumeration via the lost password error message.
+        add_filter('lostpassword_errors', [__class__, 'secureLostpasswordErrors'], 20, 2);
+
+        // Filter the password reset confirm text.
+        add_filter('gettext', [$this, 'filterPasswordResetConfirmText'], 10, 3);
+
+        // Remove emoji support.
+        remove_action('wp_head', 'print_emoji_detection_script', 7);
+        remove_action('wp_print_styles', 'print_emoji_styles');
+
+        // Strip the WP version number from enqueued asset URLs.
+        add_filter('style_loader_tag', [$this, 'filterAssetQueryString'], 10, 1);
+        // change the url with script_loader_tag
+        add_filter('script_loader_tag', [$this, 'filterAssetQueryString'], 10, 1);
+
+        // Hide the WP version number from the feeds.
+        add_filter('the_generator', '__return_empty_string');
+
+        // Disable REST API for non-logged in users.
+        add_filter('rest_authentication_errors', [$this, 'restAuth']);
+
+        // Return 404 for all author pages.
+        add_action('template_redirect', [$this, 'disableAuthorPages'], 1);
+        // Remove the "View" link from user admin screen, since these will 404.
+        add_filter('user_row_actions', [$this, 'removeViewLinkOnUsersScreen'], 100);
+
+        // Log requests to unknown hosts.
+        add_filter('pre_http_request', [$this, 'logUnknownHostRequests'], 20, 3);
+    }
+
+    /**
+     * Prevent WordPress from trying to guess and redirect a 404 page
+     *
+     * https://developer.wordpress.org/reference/functions/redirect_canonical/
+     *
+     * @param $redirect_url
+     * @return false|mixed
+     */
+    public function noRedirect404($redirect_url): mixed
+    {
+        if (is_404()) {
+            return false;
+        }
+
+        return $redirect_url;
+    }
+
+    /**
+     * @param $headers
+     * @return mixed
+     */
+    public function headerMods($headers): mixed
+    {
+        unset($headers['X-Pingback']);
+
+        return $headers;
+    }
+
+    /**
+     * Sets the expiration time of the login session cookie
+     *
+     * Nb. if we can harden access to the login page this value
+     * can be extended to a much longer period
+     *
+     * @return float|int
+     */
+    public function setLoginPeriod(): float|int
+    {
+        return 7 * DAY_IN_SECONDS; // Cookies set to expire in 7 days.
+    }
+
+    /**
+     * Prevent username enumeration via the login error message.
+     *
+     * @see https://developer.wordpress.org/reference/hooks/login_errors/
+     *
+     * @param string $error
+     * @return string
+     */
+    public static function secureLoginErrors(string $errors): string
+    {
+        // Add a random delay between 20ms to 200ms to hinder timing attacks.
+        usleep(random_int(20000, 200000));
+
+        // Send error to Sentry, so that we can assist in debugging genuine login issues.
+        $sanitized_errors = wp_strip_all_tags($errors);
+        $severity = class_exists('Sentry\Severity') ? \Sentry\Severity::info() : null;
+        do_action('sentry/captureMessage', 'Login error: ' . $sanitized_errors, $severity);
+
+        // Generic error message regardless of the actual error.
+        return 'The login information you entered is incorrect. Please check your username and password.';
+    }
+
+    /**
+     * Prevent username enumeration via the lost password error message.
+     *
+     * @see https://developer.wordpress.org/reference/hooks/lostpassword_errors/
+     *
+     * @return WP_Error
+     */
+    public static function secureLostpasswordErrors($errors, $user_data): WP_Error
+    {
+        // Are we a logged in user e.g. resetting another user's password,
+        // do nothing and return the actual errors.
+        if (is_user_logged_in()) {
+            return $errors;
+        }
+
+        // Here, we are on the lost password form for logged out users.
+
+        // Add a random delay between 20ms to 200ms to hinder timing attacks.
+        usleep(random_int(20000, 200000));
+
+        // Copy conditionals from wp-includes/user.php retrieve_password()
+        if ($errors?->has_errors() || ! $user_data) {
+            // Instead of returning the actual errors, redirect to the confirm page
+            // as if the reset email had been sent.
+            wp_safe_redirect('wp-login.php?checkemail=confirm');
+            exit;
+        }
+
+        // Return the original errors if no issues.
+        // Execution in retrieve_password() will continue, and the reset email will be sent,
+        // ultimately redirecting the user to the confirm page.
+        return $errors;
+    }
+
+    /**
+     * Filter the password reset confirm text.
+     *
+     * Since all password resets will see the same message, then update it to avoid confusion.
+     *
+     * @see https://developer.wordpress.org/reference/hooks/gettext/
+     *
+     * @param string $translated_text
+     * @param string $text
+     * @param string $domain
+     * @return string
+     */
+    public function filterPasswordResetConfirmText(string $translated_text, string $text, string $domain): string
+    {
+        if ($text === 'Check your email for the confirmation link, then visit the <a href="%s">login page</a>.' && $domain === 'default') {
+            $translated_text = 'If you entered a valid email address or username, you will receive an email with a link to reset your password.';
+        }
+        return $translated_text;
+    }
+
+    /**
+     * Change the URL of the script or style tags.
+     *
+     * @see https://developer.wordpress.org/reference/hooks/style_loader_tag/
+     *
+     * @param $tag string The HTML string of a link or script tag.
+     * @return string The modified HTML string.
+     */
+    public function filterAssetQueryString(string $tag): string
+    {
+        return str_replace('ver=' . $this->wp_version, 'ver=' . $this->hashed_wp_version, $tag);
+    }
+
+    /**
+     * Disable REST API for non-logged in users.
+     *
+     * @see https://developer.wordpress.org/reference/hooks/rest_authentication_errors/
+     *
+     * @param WP_Error|null|true $result
+     * @return WP_Error|null|true
+     */
+    public function restAuth(WP_Error|null|true $result): WP_Error|null|true
+    {
+        // If a previous authentication check was applied,
+        // pass that result along without modification.
+        if (true === $result || is_wp_error($result)) {
+            return $result;
+        }
+
+        // No authentication has been performed yet.
+        // Return an error if user is not logged in.
+        if (! is_user_logged_in()) {
+            return new WP_Error(
+                'rest_not_logged_in',
+                __('You are not currently logged in.'),
+                // Return 403, since 401 can result in a redirect loop to Entra.
+                array('status' => 403)
+            );
+        }
+
+        // Our custom authentication check should have no effect
+        // on logged-in requests
+        return $result;
+    }
+
+    /**
+     * Disable author pages.
+     *
+     * Return status code 404 for existing and non-existing author archives.
+     *
+     * @see https://developer.wordpress.org/reference/hooks/template_redirect/
+     * @return void
+     */
+    public function disableAuthorPages(): void
+    {
+        if (isset($_GET['author']) || is_author()) {
+            global $wp_query;
+            $wp_query->set_404();
+            status_header(404);
+            nocache_headers();
+        }
+    }
+
+    /**
+     * Remove the "View" link from user admin screen.
+     *
+     * @param string[] $actions An array of action links to be displayed.
+     * @return string[] $actions The modified array of action links.
+     */
+    public function removeViewLinkOnUsersScreen(array $actions): array
+    {
+        if (isset($actions['view'])) {
+            unset($actions['view']);
+        }
+        return $actions;
+    }
+
+
+    /**
+     * Log the urls of requests to unknown hosts.
+     *
+     * This could be useful in identifying requests to malicious URLs.
+     *
+     * @param false|array|\WP_Error $response
+     * @param array $parsed_args
+     * @param string $url
+     * @return false|array|\WP_Error
+     */
+    public function logUnknownHostRequests(false|array|\WP_Error $response, array $parsed_args, string $url): false|array|\WP_Error
+    {
+        if (!in_array(parse_url($url, PHP_URL_HOST), $this->known_hosts)) {
+            // Log the request url.
+            error_log('pre_http_request url: ' . $url);
+        }
+
+        return $response;
+    }
+}

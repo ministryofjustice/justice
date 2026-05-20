@@ -1,0 +1,218 @@
+<?php
+
+namespace MOJ\Justice;
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+/**
+ * A class related to taxonomies.
+ *
+ * Includes adding taxonomies to the theme and getting taxonomies for the search filter.
+ */
+
+class Taxonomies
+{
+
+    public const TAXONOMY_DEFAULT = [
+        'object_type' => ['page'],
+        'args' => [
+            'show_admin_column' => true,
+            'rewrite' => false,
+            'show_in_rest' => true,
+        ],
+    ];
+
+    public const TAXONOMY_SECTION = [
+        'taxonomy' => 'section',
+        'args' => [
+            'labels' => [
+                'name' => 'Sections',
+                'singular_name' => 'Section',
+                'plural_name' => 'Sections',
+                'add_new_item' => 'Add New Section',
+            ],
+        ],
+    ];
+
+    public const TAXONOMY_ORGANISATION = [
+        'taxonomy' => 'organisation',
+        'args' => [
+            'labels' => [
+                'name' => 'Organisations',
+                'singular_name' => 'Organisation',
+                'plural_name' => 'Organisations',
+                'add_new_item' => 'Add New Organisation',
+            ],
+        ],
+    ];
+
+    public const TAXONOMY_AUDIENCE = [
+        'taxonomy' => 'audience',
+        'args' => [
+            'labels' => [
+                'name' => 'Audiences',
+                'singular_name' => 'Audience',
+                'plural_name' => 'Audiences',
+                'add_new_item' => 'Add New Audience',
+            ],
+        ],
+    ];
+
+    public const TAXONOMY_TYPE = [
+        'taxonomy' => 'type',
+        'args' => [
+            'labels' => [
+                'name' => 'Types',
+                'singular_name' => 'Type',
+                'plural_name' => 'Types',
+                'add_new_item' => 'Add New Type',
+            ],
+            // Add rest base for custom endpoint, because `type` conflicts with wp core.
+            'rest_base' => 'moj-type',
+        ],
+    ];
+
+    public const TAXONOMIES = [
+        self::TAXONOMY_SECTION,
+        self::TAXONOMY_ORGANISATION,
+        self::TAXONOMY_AUDIENCE,
+        self::TAXONOMY_TYPE,
+    ];
+
+    public function addHooks(): void
+    {
+        add_action('init', [$this, 'registerTaxonomies']);
+    }
+
+    /**
+     * Register taxonomies.
+     *
+     * @return void
+     */
+
+    public function registerTaxonomies(): void
+    {
+        // Enable tags for pages.
+        register_taxonomy_for_object_type('post_tag', 'page');
+
+        // Loop through taxonomies and register them.
+        // Merge with default object type and args.
+        foreach (self::TAXONOMIES as $taxonomy) {
+            register_taxonomy(
+                $taxonomy['taxonomy'],
+                array_merge(self::TAXONOMY_DEFAULT['object_type'], isset($taxonomy['object_type']) ? $taxonomy['object_type'] : []),
+                array_merge(self::TAXONOMY_DEFAULT['args'], isset($taxonomy['args']) ? $taxonomy['args'] : []),
+            );
+        }
+    }
+
+    /**
+     * Returns an object with the taxonomies, labels and terms.
+     *
+     * @return array
+     */
+
+    public static function getTaxonomiesForFilterV1(): array
+    {
+        // Get all taxonomies.
+        $taxonomies = get_object_taxonomies('page', 'objects');
+
+        // Filter out post_tag.
+        $taxonomies = array_filter($taxonomies, fn ($taxonomy) =>  $taxonomy->name !== 'post_tag');
+
+        // Map over the taxonomies and return an object with the name, label and terms.
+        return array_map(fn ($taxonomy) => (object) [
+            'name' => $taxonomy->name,
+            'label' => $taxonomy->labels->singular_name,
+            // Map over the terms here and return an object with the name, slug and selected.
+            'terms' => array_map(
+                fn ($term) => (object) [
+                    'name' => $term->name,
+                    'slug' => $term->slug,
+                    'selected' => isset($_GET[$taxonomy->name]) && $_GET[$taxonomy->name] === $term->slug,
+                ],
+                get_terms([
+                    'taxonomy'   =>  $taxonomy->name,
+                    'hide_empty' => false,
+                ])
+            ),
+        ], $taxonomies);
+    }
+
+    public static function getTaxonomiesForFilter(): array
+    {
+        // Get all taxonomies.
+        $taxonomies = get_object_taxonomies('page', 'objects');
+
+        // Filter out post_tag.
+        $taxonomies = array_filter($taxonomies, fn ($taxonomy) =>  $taxonomy->name !== 'post_tag');
+
+        // Map over the taxonomies and return an object with the name, label and terms.
+        return array_map(fn ($taxonomy) => [
+            'group' => $taxonomy->name,
+            'title' => $taxonomy->labels->singular_name,
+            'type' => 'radio',
+            // Map over the terms here and return an object with the name, slug and selected.
+            'options' => array_map(
+                fn ($term) => [
+                    'label' => $term->name,
+                    'value' => $term->slug,
+                    'checked' => isset($_GET[$taxonomy->name]) && $_GET[$taxonomy->name] === $term->slug,
+                ],
+                get_terms([
+                    'taxonomy'   =>  $taxonomy->name,
+                    'hide_empty' => false,
+                ])
+            ),
+        ], $taxonomies);
+    }
+
+    /**
+     * Returns an array of taxonomies with value, for use in form hidden inputs.
+     *
+     * @return array
+     */
+
+    public function getTaxonomiesForHiddenInputs(): array
+    {
+        // Get all taxonomies.
+        $taxonomies = get_object_taxonomies('page', 'objects');
+
+        // Filter out post_tag, and where value is null.
+        $taxonomies = array_filter($taxonomies, fn ($taxonomy) =>  $taxonomy->name !== 'post_tag' && !empty(get_query_var($taxonomy->name)));
+
+        // Map over the taxonomies and return an object with the name and value.
+        return array_map(fn ($taxonomy) => (object) [
+            'name' => $taxonomy->name,
+            'value' => !empty(get_query_var($taxonomy->name)) ? esc_html(get_query_var($taxonomy->name)) : null
+        ], $taxonomies);
+    }
+
+    /**
+     * Return taxonomies in an associative array for use in html head.
+     *
+     * @return array
+     */
+
+    public function getTaxonomiesForHeaderMeta(): array
+    {
+        $post_id = get_the_ID();
+
+        $taxonomy_names = [
+            'audience',
+            'section',
+            'type'
+        ];
+
+        $return_object = [];
+
+        foreach ($taxonomy_names as $taxonomy_name) {
+            $term_obj_list = get_the_terms($post_id, $taxonomy_name);
+            $return_object[$taxonomy_name] = join('; ', wp_list_pluck($term_obj_list, 'name'));
+        }
+
+        return $return_object;
+    }
+}

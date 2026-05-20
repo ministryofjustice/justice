@@ -1,0 +1,5 @@
+@use '../mixins.scss' as mixins;
+
+.rich-text {
+    @include mixins.rich-text;
+}
