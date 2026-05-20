@@ -38,7 +38,7 @@ class Content
         add_filter('body_class', [__CLASS__, 'addBodyClassIfContentContainsH1'], 25);
 
         // Filter the content to correctly render various elements
-        add_filter('the_content', [__CLASS__, 'fixNationalArchiveLinks']);
+       // add_filter('the_content', [__CLASS__, 'fixNationalArchiveLinks']); //REVIEW
         add_filter('wp_kses_allowed_html', [__CLASS__, 'customWpksesPostTags'], 10, 2);
 
         add_action('render_block_core/list-item', [$this, 'renderLinks'], 10, 2);

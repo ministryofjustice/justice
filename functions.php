@@ -61,16 +61,18 @@ if (getenv('WP_ENV') === 'development') {
     $debug->addHooks();
 }
 
+
+
 new Justice\Admin();
 new Justice\AdminBranding();
 new Justice\Commands();
 new Justice\Comments();
-new Justice\Content();
+new Justice\Content(); //config get vars
 new Justice\ContentQuality();
 new Justice\Core();
 new Justice\Documents();
 new Justice\Layout();
-new Justice\NginxCache();
+//new Justice\NginxCache(); // Purge cache url
 new Justice\Posts();
 new Justice\Redirects();
 new Justice\Security();
@@ -78,7 +80,7 @@ new Justice\SimpleDefinitionsListBlocks();
 new Justice\Sitemap();
 new Justice\ThemeAssets();
 new Justice\Theme();
-new Justice\WpScriptLocalization();
+new Justice\WpScriptLocalization(); //WpFilterableScripts causing issues
 
 $block_editor = new Justice\BlockEditor();
 $block_editor->addHooks();
