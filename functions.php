@@ -34,7 +34,6 @@ require_once 'inc/dynamic-menu.php';
 require_once 'inc/errors.php';
 require_once 'inc/header.php';
 require_once 'inc/layout.php';
-require_once 'inc/mail.php';
 require_once 'inc/navigation-secondary.php';
 require_once 'inc/nginx-cache.php';
 require_once 'inc/plugin-hacks.php';
