@@ -62,7 +62,7 @@ defined('ABSPATH') || exit;
 
 <header class="header">
     <div class="header__container">
-        <a class="header__home" href="/">
+        <a class="header__home" href="<?php echo get_home_url(); ?>">
             <span class="header__home-label visually-hidden">
                 Justice UK - Homepage
             </span>

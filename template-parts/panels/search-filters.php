@@ -39,7 +39,7 @@ $content_id = 'sidebar-block-content-' . sanitize_title($args['title']) . ($args
         <form
             class="sidebar-block__search-filter<?= $args['no_query'] ? 'sidebar-block__search-filter--disabled' : '' ?>"
             <?= $args['no_query'] ? ' aria-describedby="no-query-hint"' : '' ?>
-            action="<?= $args['form_action'] ?>"
+            action="<?php echo esc_url( home_url() ); ?><?= $args['form_action'] ?>"
         >
             <p class="sidebar_block__search-filter-subtitle" <?= $args['no_query'] ? ' id="no-query-hint"' : '' ?>>
                 <?= $args['no_query'] ? 'Please enter a search query to use filters' : $args['subtitle'] ?>

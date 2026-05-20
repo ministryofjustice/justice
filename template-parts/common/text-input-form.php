@@ -57,7 +57,7 @@ $args = array_merge($defaults, $args);
 
 ?>
 
-<form id="<?= esc_attr($args['id']) ?>" class="text-input-form" action="<?= esc_attr($args['action']) ?>">
+<form id="<?= esc_attr($args['id']) ?>" class="text-input-form" action="<?php echo esc_url( home_url() ); ?><?= esc_attr($args['action']) ?>">
     <div class="text-input-form__wrapper">
         <div class="text-input-form__input">
             <?php get_template_part('template-parts/common/text-input', null, $args['input']); ?>
