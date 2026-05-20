@@ -1,0 +1,13 @@
+# Editor
+.idea*
+.DS_*
+._DS_*
+._.*
+.editorconfig
+
+*.sql
+
+# Theme
+dist
+node_modules
+
