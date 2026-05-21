@@ -30,7 +30,7 @@ class Core
         // Avoids unnecessary transient entry in the database, by returning an empty array.
         add_filter('translations_api', fn () => []);
         // Handle loopback requests.
-        add_filter('pre_http_request', [$this, 'handleLoopbackRequests'], 10, 3);
+        //add_filter('pre_http_request', [$this, 'handleLoopbackRequests'], 10, 3); //REVIEW
         // Remove Available Tools from the admin menu.
         add_action('admin_menu', [$this, 'removeSubmenus']);
         // Remove the Gravatar service, and always show the default avatar.
