@@ -43,7 +43,7 @@ trait DocumentColumns
 
             $sql = $wpdb->prepare("
             SELECT post_type, count(*) AS count
-            FROM wp_posts AS p
+            FROM {$wpdb->prefix}posts AS p
             WHERE p.post_type IN ('attachment', 'revision')
             AND p.post_parent = %s
             GROUP BY post_type
