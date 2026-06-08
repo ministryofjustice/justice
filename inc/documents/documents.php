@@ -126,6 +126,29 @@ class Documents
         // Filter wp_die handler for documents - to change 403 to 404 for missing document files.
         add_filter('wp_die_handler', [self::class, 'filterWpDieHandler']);
 
+        add_filter('upload_dir', function (array $dirs): array {
+          global $wpdr;
+
+          // Only act while WP Document Revisions is actively handling a document upload,
+          // i.e. when its own upload_dir filter is currently hooked. Bail for every other
+          // upload (normal Media Library, thumbnails, other plugins).
+          if (!($wpdr instanceof \WP_Document_Revisions)
+              || !has_filter('upload_dir', [$wpdr, 'document_upload_dir_filter'])) {
+              return $dirs;
+          }
+
+          // WPDR builds its path as basedir . '/' . subdir, but subdir already begins with
+          // a slash, producing '//'. Harmless on a local FS (collapsed), but the s3:// stream
+          // wrapper treats it as a real empty key segment. Collapse it, preserving the scheme.
+          foreach (['path', 'basedir'] as $key) {
+              if (isset($dirs[$key]) && strpos($dirs[$key], 's3://') === 0) {
+                  $dirs[$key] = 's3://' . preg_replace('#//+#', '/', substr($dirs[$key], 5));
+              }
+          }
+
+          return $dirs;
+        }, 20);
+
         // Permalinks
         $this->addPermalinkHooks();
     }
