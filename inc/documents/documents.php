@@ -126,31 +126,52 @@ class Documents
         // Filter wp_die handler for documents - to change 403 to 404 for missing document files.
         add_filter('wp_die_handler', [self::class, 'filterWpDieHandler']);
 
-        add_filter('upload_dir', function (array $dirs): array {
-          global $wpdr;
-
-          // Only act while WP Document Revisions is actively handling a document upload,
-          // i.e. when its own upload_dir filter is currently hooked. Bail for every other
-          // upload (normal Media Library, thumbnails, other plugins).
-          if (!($wpdr instanceof \WP_Document_Revisions)
-              || !has_filter('upload_dir', [$wpdr, 'document_upload_dir_filter'])) {
-              return $dirs;
-          }
-
-          // WPDR builds its path as basedir . '/' . subdir, but subdir already begins with
-          // a slash, producing '//'. Harmless on a local FS (collapsed), but the s3:// stream
-          // wrapper treats it as a real empty key segment. Collapse it, preserving the scheme.
-          foreach (['path', 'basedir'] as $key) {
-              if (isset($dirs[$key]) && strpos($dirs[$key], 's3://') === 0) {
-                  $dirs[$key] = 's3://' . preg_replace('#//+#', '/', substr($dirs[$key], 5));
-              }
-          }
-
-          return $dirs;
-        }, 20);
+        // Priority 20 so this runs *after* WPDR's own document_upload_dir_filter (priority 10),
+        // letting us correct the s3:// path it builds. See fixDocumentS3UploadDir().
+        add_filter('upload_dir', [self::class, 'fixDocumentS3UploadDir'], 20);
 
         // Permalinks
         $this->addPermalinkHooks();
+    }
+
+
+    /**
+     * Collapse double slashes in WPDR's s3:// upload paths.
+     *
+     * WP Document Revisions hooks `upload_dir` via `document_upload_dir_filter` at the
+     * default priority of 10, where it builds its path as `basedir . '/' . subdir`. Since
+     * `subdir` already begins with a slash, this produces a `//`. On a local filesystem
+     * that is harmless (the OS collapses it), but the s3:// stream wrapper treats the empty
+     * segment as a real, empty key segment and the upload lands at the wrong path.
+     *
+     * This filter is registered at priority 20 — higher than WPDR's 10 — so it runs *after*
+     * WPDR has built the path, allowing us to correct the path it produced. Running at or
+     * before priority 10 would act on the unmodified path and have no effect.
+     *
+     * It only acts while WPDR is actively handling a document upload (its own filter is
+     * currently hooked) and leaves every other upload untouched — normal Media Library
+     * uploads, thumbnails, other plugins.
+     *
+     * @param array $dirs The upload directory data from the `upload_dir` filter.
+     * @return array The upload directory data, with s3:// paths de-duplicated.
+     */
+    public static function fixDocumentS3UploadDir(array $dirs): array
+    {
+        global $wpdr;
+
+        if (!($wpdr instanceof \WP_Document_Revisions)
+            || !has_filter('upload_dir', [$wpdr, 'document_upload_dir_filter'])) {
+            return $dirs;
+        }
+
+        // Collapse repeated slashes, preserving the s3:// scheme.
+        foreach (['path', 'basedir'] as $key) {
+            if (isset($dirs[$key]) && strpos($dirs[$key], 's3://') === 0) {
+                $dirs[$key] = 's3://' . preg_replace('#//+#', '/', substr($dirs[$key], 5));
+            }
+        }
+
+        return $dirs;
     }
 
 
