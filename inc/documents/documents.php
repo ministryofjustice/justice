@@ -26,29 +26,24 @@ class Documents
     const SLUG = 'document';
     // Hardcoded document slug. We don't want this to be changed by the user.
     const DOCUMENT_SLUG = 'documents';
+    // Supported document file types
+    const DOCUMENT_EXTENSIONS = [
+        'doc',
+        'docx',
+        'pdf',
+        'xls',
+        'xlsx',
+        'zip'
+    ];
 
     use DocumentColumns;
     use DocumentFilters;
     use DocumentPermalinks;
 
     // File extensions to mark as downloadable in S3.
-    private array $content_disposition_extensions = [
-        'doc',
-        'docx',
-        'pdf',
-        'xls',
-        'xlsx',
-        'zip'
-    ];
+    private array $content_disposition_extensions = self::DOCUMENT_EXTENSIONS;
 
-    private array $disallow_in_media_library = [
-        'doc',
-        'docx',
-        'pdf',
-        'xls',
-        'xlsx',
-        'zip'
-    ];
+    private array $disallow_in_media_library = self::DOCUMENT_EXTENSIONS;
 
     // Max filesize for wp-document-revisions to stream via php.
     private int|float $php_stream_limit = 15 * 1024 * 1024; // 15MB
@@ -106,6 +101,8 @@ class Documents
         add_filter('wp_unique_post_slug_is_bad_flat_slug', [$this, 'isInvalidSlug'], 10, 2);
         // Media Library hint regarding unsupported file types. * Affects non-documents.
         add_filter('post-upload-ui', [$this, 'mediaLibraryHint'], 10);
+        // Add site-wide support for document extensions
+        add_filter('site_option_upload_filetypes', [self::class, 'allowDocumentFileTypes']);
         // Remove support for document file types from the Media Library. * Affects non-documents.
         add_filter('upload_mimes', [$this, 'removeFileSupport'], 10);
         // Limits on uploads. * Affects documents & non-documents.
@@ -159,8 +156,10 @@ class Documents
     {
         global $wpdr;
 
-        if (!($wpdr instanceof \WP_Document_Revisions)
-            || !has_filter('upload_dir', [$wpdr, 'document_upload_dir_filter'])) {
+        if (
+            !($wpdr instanceof \WP_Document_Revisions)
+            || !has_filter('upload_dir', [$wpdr, 'document_upload_dir_filter'])
+        ) {
             return $dirs;
         }
 
@@ -605,6 +604,19 @@ class Documents
                 admin_url('post-new.php?post_type=document')
             );
         }
+    }
+
+    /**
+     * Ensure document file types are in the multisite `upload_filetypes` allowlist.
+     *
+     * Multisite's check_upload_mimes() intersects allowed mimes with the network-wide
+     * setting. Without this, WPDR uploads of zip (and any other extension missing from
+     * the network setting) are silently rejected with "not allowed to upload this file type."
+     */
+    public static function allowDocumentFileTypes($types): string
+    {
+        $current = preg_split('/\s+/', trim((string) $types), -1, PREG_SPLIT_NO_EMPTY);
+        return implode(' ', array_unique([...$current, ...self::DOCUMENT_EXTENSIONS]));
     }
 
     /**
