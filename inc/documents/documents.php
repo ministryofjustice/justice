@@ -610,37 +610,6 @@ class Documents
     }
 
     /**
-     * Re-add document file types to the upload mimes allowlist for document uploads.
-     *
-     * On multisite, check_upload_mimes() (hooked to `upload_mimes` at priority 10)
-     * intersects the allowed mimes with the network-wide `upload_filetypes` setting,
-     * dropping anything not in the network whitelist. Running at priority 20 lets us
-     * put the document extensions back in for actual upload validation only — the
-     * network setting value itself (and the Network Admin UI) is untouched.
-     *
-     * Only re-adds the types when uploading to a document post (mirroring the context
-     * check in removeFileSupport()), so Media Library uploads remain restricted.
-     *
-     * @param array $mimes ext-pattern => mime-type pairs allowed for upload.
-     * @return array
-     */
-    public static function allowDocumentFileTypes(array $mimes): array
-    {
-        $post_type = isset($_REQUEST['post_id']) ? get_post_type((int) $_REQUEST['post_id']) : null;
-        if (self::SLUG !== $post_type) {
-            return $mimes;
-        }
-
-        $defaults = wp_get_mime_types(); // canonical ext-pattern => mime map
-        foreach (self::DOCUMENT_EXTENSIONS as $ext) {
-            if (isset($defaults[$ext]) && !isset($mimes[$ext])) {
-                $mimes[$ext] = $defaults[$ext];
-            }
-        }
-        return $mimes;
-    }
-
-    /**
      * Remove support for document file types from the Media Library.
      *
      * @param array $mime_types
@@ -669,6 +638,46 @@ class Documents
         }
 
         return $mime_types;
+    }
+
+    /**
+     * Re-add document file types to the upload mimes allowlist for document uploads.
+     *
+     * On multisite, check_upload_mimes() (hooked to `upload_mimes` at priority 10)
+     * intersects the allowed mimes with the network-wide `upload_filetypes` setting,
+     * dropping anything not in the network whitelist. Running at priority 20 lets us
+     * put the document extensions back in for actual upload validation only — the
+     * network setting value itself (and the Network Admin UI) is untouched.
+     *
+     * Only re-adds the types when uploading to a document post (mirroring the context
+     * check in removeFileSupport()), so Media Library uploads remain restricted.
+     *
+     * @param array $mimes ext-pattern => mime-type pairs allowed for upload.
+     * @return array
+     */
+    public static function allowDocumentFileTypes(array $mimes): array
+    {
+        $post_type = isset($_REQUEST['post_id']) ? get_post_type((int) $_REQUEST['post_id']) : null;
+        if (self::SLUG !== $post_type) {
+            return $mimes;
+        }
+
+        // Default mime map uses pipe-delimited ext patterns as keys (e.g. 'xla|xls|xlt|xlw'),
+        // so we match each document extension against the pattern parts rather than the whole key.
+        $defaults = wp_get_mime_types();
+        $wanted = array_flip(self::DOCUMENT_EXTENSIONS);
+        foreach ($defaults as $pattern => $mime) {
+            if (isset($mimes[$pattern])) {
+                continue;
+            }
+            foreach (explode('|', $pattern) as $ext) {
+                if (isset($wanted[$ext])) {
+                    $mimes[$pattern] = $mime;
+                    break;
+                }
+            }
+        }
+        return $mimes;
     }
 
     /**
