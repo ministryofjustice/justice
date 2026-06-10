@@ -71,7 +71,7 @@ class ContentLinks
         string|null  $id = null,
         string|null $target = null
     ): array|null {
-        if(!$url) {
+        if (!$url) {
             return $url;
         }
 
@@ -180,17 +180,16 @@ class ContentLinks
      * No-op for: empty/null URLs, external URLs, URLs not starting with "/",
      * non-multisite, root-hosted sites, and URLs already prefixed with the site path.
      *
-     * @param string|null $url The URL of the link.
-     * @return string|null The URL, prefixed with the site path if applicable.
+     * @param string $url The URL of the link.
+     * @return string The URL, prefixed with the site path if applicable.
      */
-    public static function prefixWithSitePath($url)
+    public static function prefixWithSitePath(string $url): string
     {
         // Do nothing, if:
-        // - we have no URL,
         // - or we have an external URL
         // - or we don't have an absolute path
         // - or we are not on multisite
-        if (!$url || self::isExternal($url) || !str_starts_with($url, '/') || !is_multisite()) {
+        if (self::isExternal($url) || !str_starts_with($url, '/') || !is_multisite()) {
             return $url;
         }
 
