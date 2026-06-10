@@ -652,7 +652,7 @@ class Documents
      * Only re-adds the types when uploading to a document post (mirroring the context
      * check in removeFileSupport()), so Media Library uploads remain restricted.
      *
-     * @param array $mimes ext-pattern => mime-type pairs allowed for upload.
+     * @param array $mimes ext (or ext-pattern) => mime-type pairs allowed for upload.
      * @return array
      */
     public static function allowDocumentFileTypes(array $mimes): array
@@ -662,16 +662,19 @@ class Documents
             return $mimes;
         }
 
-        // Default mime map uses pipe-delimited ext patterns as keys, so resolve the mime type per
-        // extension and only add the specific extensions we intend to support.
+        // Default mime map uses pipe-delimited ext patterns as keys (e.g. 'xla|xls|xlt|xlw').
+        // Flatten into ext => mime so we can add only the specific extensions we want,
+        // without inadvertently allowlisting siblings (xla, xlt, xlw) in the same pattern.
         $defaults = wp_get_mime_types();
-        foreach (self::DOCUMENT_EXTENSIONS as $ext) {
-            if (isset($mimes[$ext])) {
-                continue;
+        $mimeByExt = [];
+        foreach ($defaults as $pattern => $mime) {
+            foreach (explode('|', $pattern) as $ext) {
+                $mimeByExt[$ext] = $mime;
             }
-            $filetype = wp_check_filetype('file.' . $ext, $defaults);
-            if (!empty($filetype['type'])) {
-                $mimes[$ext] = $filetype['type'];
+        }
+        foreach (self::DOCUMENT_EXTENSIONS as $ext) {
+            if (isset($mimeByExt[$ext]) && !isset($mimes[$ext])) {
+                $mimes[$ext] = $mimeByExt[$ext];
             }
         }
         return $mimes;
