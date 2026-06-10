@@ -76,7 +76,7 @@ if ($post_meta->hasPanel('other_websites')) {
                     $entry['target'] ?? null
                 );
 
-                return [...$args, ...$entry];
+                return [...$entry, ...$args];
             },
             $entries ?? []
         ),
