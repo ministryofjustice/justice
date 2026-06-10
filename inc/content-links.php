@@ -71,8 +71,8 @@ class ContentLinks
         string|null  $id = null,
         string|null $target = null
     ): array|null {
-        if (!$url) {
-            return $url;
+        if ($url === null) {
+            return null;
         }
 
         $format = pathinfo($url, PATHINFO_EXTENSION);
