@@ -73,7 +73,6 @@ class ContentLinks
     ): array|null {
         $format = pathinfo($url, PATHINFO_EXTENSION);
         $external = self::isExternal($url);
-
         $url = self::prefixWithSitePath($url);
 
         if (in_array($format, self::ALLOWED_EXTENSIONS) && !$external) {
