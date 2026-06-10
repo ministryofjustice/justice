@@ -202,14 +202,16 @@ class ContentLinks
         // - URL is the site path already e.g. /justice
         // - path is already prefixed with the site: e.g. /justice/, /justice? or /justice#
         if (
-             $site_path === '' ||
-             $url === $site_path ||
-             str_starts_with($url, $site_path . '/') ||
-             str_starts_with($url, $site_path . '?') ||
-             str_starts_with($url, $site_path . '#')
-         ) {
+            $site_path === '' ||
+            $url === $site_path ||
+            str_starts_with($url, $site_path . '/') ||
+            str_starts_with($url, $site_path . '?') ||
+            str_starts_with($url, $site_path . '#')
+        ) {
+            return $url;
+        }
 
-        // Here, we are on a multi-site install, with a path-style site. 
+        // Here, we are on a multi-site install, with a path-style site.
         // Append the site's path to the link's absolute path.
         return $site_path . $url;
     }
