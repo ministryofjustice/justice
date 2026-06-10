@@ -194,8 +194,7 @@ class ContentLinks
         }
 
         global $current_blog;
-        $site_path = rtrim($current_blog->path ?? '/', '/'); // "" or "/justice"
-
+        $site_path = rtrim($current_blog?->path ?? '/', '/'); // "" or "/justice"
         // Do nothing, if:
         // - we are on a site with domain (no path)
         // - URL is the site path already e.g. /justice
