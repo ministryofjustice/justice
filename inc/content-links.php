@@ -193,11 +193,18 @@ class ContentLinks
         global $current_blog;
         $site_path = rtrim($current_blog->path ?? '/', '/'); // "" or "/justice"
 
-        // Do nothing, if:
-        // - we are on a site with domain (no path)
-        // - URL is the site path already e.g. /justice
-        // - path is already prefixed with the site, e.g. /justice/
-        if ($site_path === '' || $url === $site_path || str_starts_with($url, $site_path . '/')) {
+        // Do nothing, if we are on a site without a path prefix (e.g. subdomain or main site).
+        if ($site_path === '') {
+            return $url;
+        }
+
+        // Do nothing, if the URL is already prefixed with the site path.
+        // The site path must be followed by a path boundary: end-of-string, "/", "?", or "#".
+        // This correctly treats "/justice", "/justice/", "/justice?x=1" and "/justice#a" as
+        // already-prefixed, while still prefixing e.g. "/justice-news" (different path segment).
+        if (str_starts_with($url, $site_path)
+            && preg_match('#^(/|\?|\#|$)#', substr($url, strlen($site_path)))
+        ) {
             return $url;
         }
 
