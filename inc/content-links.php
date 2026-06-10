@@ -71,6 +71,10 @@ class ContentLinks
         string|null  $id = null,
         string|null $target = null
     ): array|null {
+        if(!$url) {
+            return $url;
+        }
+
         $format = pathinfo($url, PATHINFO_EXTENSION);
         $external = self::isExternal($url);
         $url = self::prefixWithSitePath($url);
