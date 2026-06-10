@@ -662,19 +662,16 @@ class Documents
             return $mimes;
         }
 
-        // Default mime map uses pipe-delimited ext patterns as keys (e.g. 'xla|xls|xlt|xlw'),
-        // so we match each document extension against the pattern parts rather than the whole key.
+        // Default mime map uses pipe-delimited ext patterns as keys, so resolve the mime type per
+        // extension and only add the specific extensions we intend to support.
         $defaults = wp_get_mime_types();
-        $wanted = array_flip(self::DOCUMENT_EXTENSIONS);
-        foreach ($defaults as $pattern => $mime) {
-            if (isset($mimes[$pattern])) {
+        foreach (self::DOCUMENT_EXTENSIONS as $ext) {
+            if (isset($mimes[$ext])) {
                 continue;
             }
-            foreach (explode('|', $pattern) as $ext) {
-                if (isset($wanted[$ext])) {
-                    $mimes[$pattern] = $mime;
-                    break;
-                }
+            $filetype = wp_check_filetype('file.' . $ext, $defaults);
+            if (!empty($filetype['type'])) {
+                $mimes[$ext] = $filetype['type'];
             }
         }
         return $mimes;
