@@ -74,6 +74,8 @@ class ContentLinks
         $format = pathinfo($url, PATHINFO_EXTENSION);
         $external = self::isExternal($url);
 
+        $url = self::prefixWithSitePath($url);
+
         if (in_array($format, self::ALLOWED_EXTENSIONS) && !$external) {
             // We are dealing with an internal download file
             return self::getFileDownloadParams($url, $label, $id);
@@ -162,5 +164,46 @@ class ContentLinks
             'url' => $url,
             'language' => null,
         ];
+    }
+
+    /**
+     * Prefix root-relative URLs with the current site's multisite path.
+     *
+     * Handles content authored on prod multisite using absolute paths (e.g. "/page"),
+     * then migrated to an environment where the site lives under a path prefix
+     * (e.g. "/justice/page"). On subdomain or mapped-domain sites the site path
+     * is "/", so the URL is returned unchanged.
+     *
+     * No-op for: empty/null URLs, external URLs, URLs not starting with "/",
+     * non-multisite, root-hosted sites, and URLs already prefixed with the site path.
+     *
+     * @param string|null $url The URL of the link.
+     * @return string|null The URL, prefixed with the site path if applicable.
+     */
+    public static function prefixWithSitePath($url)
+    {
+        // Do nothing, if:
+        // - we have no URL,
+        // - or we have an external URL
+        // - or we don't have an absolute path
+        // - or we are not on multisite
+        if (!$url || self::isExternal($url) || !str_starts_with($url, '/') || !is_multisite()) {
+            return $url;
+        }
+
+        global $current_blog;
+        $site_path = rtrim($current_blog->path ?? '/', '/'); // "" or "/justice"
+
+        // Do nothing, if:
+        // - we are on a site with domain (no path)
+        // - URL is the site path already e.g. /justice
+        // - path is already prefixed with the site, e.g. /justice/
+        if ($site_path === '' || $url === $site_path || str_starts_with($url, $site_path . '/')) {
+            return $url;
+        }
+
+        // Here, we are on a multi-site install, with a path-style site. 
+        // Append the site's path to the link's absolute path.
+        return $site_path . $url;
     }
 }

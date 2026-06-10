@@ -36,7 +36,7 @@ if ($post_meta->hasPanel('related')) {
                     $entry['target'] ?? null
                 );
 
-                return [...$args, ...$entry];
+                return [...$entry, ...$args];
             },
             $entries ?? []
         ),
