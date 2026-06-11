@@ -52,7 +52,7 @@ get_header();
                     ],
                    'result_count' => Search::getResultCount(),
                    'filters' => Search::getSortOptions(),
-                   'did_you_mean' => Search::getDidYouMean(), //REVIEW
+                   'did_you_mean' => Search::getDidYouMean(), 
                 ]);
                 
                 $results = [];
@@ -67,7 +67,7 @@ get_header();
                             'date' => get_the_date('j F Y'),
                             'description' => apply_filters('the_excerpt', get_the_excerpt()),
                             'is_document' => Documents::isDocument(get_the_ID()),
-                            'filesize' => Documents::getFormattedFilesize(get_the_ID()), //REVIEW
+                            'filesize' => Documents::getFormattedFilesize(get_the_ID()),
                             'format' => pathinfo($url, PATHINFO_EXTENSION),
                         ];
                     }
