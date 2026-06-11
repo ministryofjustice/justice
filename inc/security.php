@@ -39,39 +39,12 @@ class Security
         $this->hashed_wp_version = substr(hash('sha256', $this->wp_version . AUTH_SALT), 0, 6);
 
         $this->home_host = parse_url(get_home_url(), PHP_URL_HOST);
-
-        /* REVIEW
+        
         $this->actions();
-
+        
         // Push the application host to known_hosts.
         array_push($this->known_hosts, $this->home_host);
 
-      
-        
-        // Push the S3 bucket host to known_hosts.
-        if ($s3_bucket = env('AWS_S3_BUCKET')) {
-            array_push($this->known_hosts, $s3_bucket . ".s3.eu-west-2.amazonaws.com");
-        }
-
-        if ($custom_s3_host = env('AWS_S3_CUSTOM_HOST')) {
-            array_push($this->known_hosts, $custom_s3_host);
-        }
-*/
-        /*
-        if (Config::get('WP_OFFLOAD_MEDIA_PRESET') === 'minio') {
-            array_push($this->known_hosts, 'minio');
-        }
-
-        if ($loopback_url = Config::get('WP_LOOPBACK')) {
-            // Push the loopback URL host to known_hosts.
-            array_push($this->known_hosts, parse_url($loopback_url, PHP_URL_HOST));
-        }
-
-        // Push the cache purge url host to known_hosts.
-        $cache_purge_url = Config::get('NGINX_PURGE_CACHE_URL');
-        if ($cache_purge_url) {
-            array_push($this->known_hosts, parse_url($cache_purge_url, PHP_URL_HOST));
-        }*/
     }
 
     /**

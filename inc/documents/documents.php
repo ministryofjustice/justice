@@ -745,6 +745,11 @@ class Documents
      */
     public static function getFormattedFilesize(int $post_id): string|null
     {
+
+        if (! class_exists( 'WP_Document_Revisions' ) ) {
+            return null;
+        }
+        
         $filesize = null;
 
         // Init a WP_Document_Revisions class so that we can use document specific functions

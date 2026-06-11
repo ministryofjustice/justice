@@ -38,7 +38,7 @@ class Content
         add_filter('body_class', [__CLASS__, 'addBodyClassIfContentContainsH1'], 25);
 
         // Filter the content to correctly render various elements
-       // add_filter('the_content', [__CLASS__, 'fixNationalArchiveLinks']); //REVIEW
+        add_filter('the_content', [__CLASS__, 'fixNationalArchiveLinks']); 
         add_filter('wp_kses_allowed_html', [__CLASS__, 'customWpksesPostTags'], 10, 2);
 
         add_action('render_block_core/list-item', [$this, 'renderLinks'], 10, 2);
@@ -295,7 +295,7 @@ class Content
     public static function fixNationalArchiveLinks($content)
     {
 
-        if (Config::get('WP_ENVIRONMENT_TYPE') === 'staging') {
+        if (getenv('WP_ENVIRONMENT_TYPE') === 'staging') {
             // Match strings that start with https://webarchive.nationalarchives.gov.uk any amount words and / then ://stage
             $pattern = '/(https:\/\/webarchive\.nationalarchives\.gov\.uk)([\w\/]*)(:\/\/stage)/';
             return preg_replace($pattern, '$1$2://www', $content);

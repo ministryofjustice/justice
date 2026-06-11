@@ -29,7 +29,7 @@ class Admin
         add_action('admin_menu', [$this, 'removeCustomizer'], 999);
         add_filter('rest_page_query', [$this, 'increaseDropdownLimit'], 9, 2);
         add_action('admin_head', [$this, 'hideNagsForNonAdmins'], 1);
-        //add_action('wp_before_admin_bar_render', [$this, 'filterAdminBar']); //REVIEW
+        add_action('wp_before_admin_bar_render', [$this, 'filterAdminBar']);
         add_filter('admin_body_class', [$this, 'addRoleToAdminBody']);
         add_filter('wp_sentry_public_options', [$this, 'filterSentryJsOptions']);
     }
@@ -125,7 +125,7 @@ class Admin
     {
         global $wp_admin_bar;
 
-        $support_email = Config::get('SUPPORT_EMAIL');
+        $support_email = get_option( 'admin_email' );
 
         $all_nodes = $wp_admin_bar->get_nodes();
 
