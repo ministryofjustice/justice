@@ -26,29 +26,24 @@ class Documents
     const SLUG = 'document';
     // Hardcoded document slug. We don't want this to be changed by the user.
     const DOCUMENT_SLUG = 'documents';
+    // Supported document file types
+    const DOCUMENT_EXTENSIONS = [
+        'doc',
+        'docx',
+        'pdf',
+        'xls',
+        'xlsx',
+        'zip'
+    ];
 
     use DocumentColumns;
     use DocumentFilters;
     use DocumentPermalinks;
 
     // File extensions to mark as downloadable in S3.
-    private array $content_disposition_extensions = [
-        'doc',
-        'docx',
-        'pdf',
-        'xls',
-        'xlsx',
-        'zip'
-    ];
+    private array $content_disposition_extensions = self::DOCUMENT_EXTENSIONS;
 
-    private array $disallow_in_media_library = [
-        'doc',
-        'docx',
-        'pdf',
-        'xls',
-        'xlsx',
-        'zip'
-    ];
+    private array $disallow_in_media_library = self::DOCUMENT_EXTENSIONS;
 
     // Max filesize for wp-document-revisions to stream via php.
     private int|float $php_stream_limit = 15 * 1024 * 1024; // 15MB
@@ -108,6 +103,11 @@ class Documents
         add_filter('post-upload-ui', [$this, 'mediaLibraryHint'], 10);
         // Remove support for document file types from the Media Library. * Affects non-documents.
         add_filter('upload_mimes', [$this, 'removeFileSupport'], 10);
+        // Add site-wide support for document extensions
+        // Priority 20 so this runs *after* multisite's check_upload_mimes() (priority 10),
+        // which intersects the allowed mimes with the network-wide `upload_filetypes` setting.
+        // Re-add document file types here so WPDR uploads aren't silently rejected.
+        add_filter('upload_mimes', [self::class, 'allowDocumentFileTypes'], 20);
         // Limits on uploads. * Affects documents & non-documents.
         add_filter('upload_size_limit', [$this, 'setUploadSizeLimit'], 10, 3);
 
@@ -159,8 +159,10 @@ class Documents
     {
         global $wpdr;
 
-        if (!($wpdr instanceof \WP_Document_Revisions)
-            || !has_filter('upload_dir', [$wpdr, 'document_upload_dir_filter'])) {
+        if (
+            !($wpdr instanceof \WP_Document_Revisions)
+            || !has_filter('upload_dir', [$wpdr, 'document_upload_dir_filter'])
+        ) {
             return $dirs;
         }
 
@@ -527,7 +529,7 @@ class Documents
     public function addParentPagesToPermalink(string $link, WP_Post $document): string
     {
         if ($document->post_parent) {
-            $link = str_replace(home_url(), get_permalink($document->post_parent), $link);
+            $link = str_replace(rtrim(home_url(), '/'), rtrim(get_permalink($document->post_parent), '/'), $link);
         }
 
         return $link;
@@ -595,7 +597,7 @@ class Documents
 
     public function mediaLibraryHint(): void
     {
-        $post_type = isset($_REQUEST['post_id']) ? get_post_type($_REQUEST['post_id']) : null;
+        $post_type = isset($_REQUEST['post_id']) ? get_post_type((int) $_REQUEST['post_id']) : null;
 
         // We're not uploading a document.
         if (self::SLUG !== $post_type) {
@@ -636,6 +638,46 @@ class Documents
         }
 
         return $mime_types;
+    }
+
+    /**
+     * Re-add document file types to the upload mimes allowlist for document uploads.
+     *
+     * On multisite, check_upload_mimes() (hooked to `upload_mimes` at priority 10)
+     * intersects the allowed mimes with the network-wide `upload_filetypes` setting,
+     * dropping anything not in the network whitelist. Running at priority 20 lets us
+     * put the document extensions back in for actual upload validation only — the
+     * network setting value itself (and the Network Admin UI) is untouched.
+     *
+     * Only re-adds the types when uploading to a document post (mirroring the context
+     * check in removeFileSupport()), so Media Library uploads remain restricted.
+     *
+     * @param array $mimes ext (or ext-pattern) => mime-type pairs allowed for upload.
+     * @return array
+     */
+    public static function allowDocumentFileTypes(array $mimes): array
+    {
+        $post_type = isset($_REQUEST['post_id']) ? get_post_type((int) $_REQUEST['post_id']) : null;
+        if (self::SLUG !== $post_type) {
+            return $mimes;
+        }
+
+        // Default mime map uses pipe-delimited ext patterns as keys (e.g. 'xla|xls|xlt|xlw').
+        // Flatten into ext => mime so we can add only the specific extensions we want,
+        // without inadvertently allowlisting siblings (xla, xlt, xlw) in the same pattern.
+        $defaults = wp_get_mime_types();
+        $mimeByExt = [];
+        foreach ($defaults as $pattern => $mime) {
+            foreach (explode('|', $pattern) as $ext) {
+                $mimeByExt[$ext] = $mime;
+            }
+        }
+        foreach (self::DOCUMENT_EXTENSIONS as $ext) {
+            if (isset($mimeByExt[$ext]) && !isset($mimes[$ext])) {
+                $mimes[$ext] = $mimeByExt[$ext];
+            }
+        }
+        return $mimes;
     }
 
     /**
@@ -790,7 +832,8 @@ class Documents
         // This is when the message is 'No document file is attached.' and the response code is 403.
         // See: `wp-document-revisions/includes/class-wp-document-revisions.php`
         $target_message = esc_html__('No document file is attached.', 'wp-document-revisions');
-        if ($message === $target_message &&
+        if (
+            $message === $target_message &&
             is_array($args) &&
             isset($args['response']) &&
             (int) $args['response'] === 403
