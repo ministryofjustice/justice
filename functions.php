@@ -9,16 +9,6 @@ if (defined('WP_CLI') && WP_CLI) {
     require_once 'inc/commands.php';
 }
 
-/* To remove if we can use S3 Uploads Plugin 
-if (Config::get('WP_OFFLOAD_MEDIA_PRESET') === 'minio') {
-    require_once 'inc/amazon-s3-and-cloudfront-tweaks-for-minio.php';
-}
-
-require_once 'inc/amazon-s3-and-cloudfront-assets.php';
-require_once 'inc/amazon-s3-and-cloudfront-tweaks.php';
-
-*/
-
 require_once 'inc/acf/acf.php';
 require_once 'inc/admin.php';
 require_once 'inc/admin-branding.php';
@@ -39,7 +29,6 @@ require_once 'inc/errors.php';
 require_once 'inc/header.php';
 require_once 'inc/layout.php';
 require_once 'inc/navigation-secondary.php';
-require_once 'inc/nginx-cache.php';
 require_once 'inc/plugin-hacks.php';
 require_once 'inc/post-meta/post-meta.php';
 require_once 'inc/redirects.php';
@@ -69,7 +58,6 @@ new Justice\ContentQuality();
 new Justice\Core();
 new Justice\Documents();
 new Justice\Layout();
-//new Justice\NginxCache(); //REVIEW
 new Justice\Posts();
 new Justice\Redirects();
 new Justice\Security();

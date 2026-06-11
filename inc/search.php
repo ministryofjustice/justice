@@ -301,6 +301,10 @@ class Search
      */
     public static function getDidYouMean(): array|bool
     {
+        if (!function_exists('relevanssi_premium_generate_suggestion')) {
+            return false;
+        }
+        
         $suggestion = relevanssi_premium_generate_suggestion(get_query_var('s'));
 
         if (true === $suggestion) {
