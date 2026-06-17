@@ -1,13 +1,8 @@
 <?php
 
 use MOJ\Justice;
-use Roots\WPConfig\Config;
 
 defined('ABSPATH') || exit;
-
-if (defined('WP_CLI') && WP_CLI) {
-    require_once 'inc/commands.php';
-}
 
 require_once 'inc/acf/acf.php';
 require_once 'inc/admin.php';
