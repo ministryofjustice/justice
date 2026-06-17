@@ -41,22 +41,10 @@ class WpFilterableScripts extends WP_Scripts
          * https://wordpress.stackexchange.com/a/284495/198117
          */
         if ($GLOBALS['wp_scripts'] instanceof WP_Scripts) {
-            $old = $GLOBALS['wp_scripts'];
-
-            $missing_scripts = array_diff_key($old->registered, $this->registered);
+            $missing_scripts = array_diff_key($GLOBALS['wp_scripts']->registered, $this->registered);
             foreach ($missing_scripts as $mscript) {
                 $this->registered[$mscript->handle] = $mscript;
             }
-
-            // Also carry over queue/print state, otherwise anything already
-            // queued, printed, or grouped (e.g. wp-admin's script
-            // concatenation groups) is lost when we swap the global out,
-            // which causes scripts to be reprinted or concatenation
-            // metadata (like "//# sourceURL=...") to leak into the page.
-            $this->queue  = $old->queue;
-            $this->done   = $old->done;
-            $this->to_do  = $old->to_do;
-            $this->groups = $old->groups;
         }
     }
 
