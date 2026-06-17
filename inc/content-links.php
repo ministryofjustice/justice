@@ -111,6 +111,9 @@ class ContentLinks
         if (!$label) {
             $label = pathinfo($url, PATHINFO_FILENAME);
         }
+        // TODO - act on this variable
+        // If the label already has new tab/window then don't repeat it
+        $manualNewTabText = (str_contains($label, 'new tab') || str_contains($label, 'new window'));
 
         return [
             // Pass the ID, unmodified.
@@ -119,6 +122,7 @@ class ContentLinks
             'label' => $label,
             'url' => $url,
             'new_tab' => $newTab,
+            'manual_new_tab_text' => $manualNewTabText,
         ];
     }
 
