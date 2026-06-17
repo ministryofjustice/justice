@@ -66,14 +66,16 @@ class WpFilterableScripts extends WP_Scripts
             return $output;
         }
 
+        if (! $display) {
+            return $output;
+        }
+
         $tag = wp_get_inline_script_tag($output, array('id' => "{$handle}-js-extra"));
 
         $tag = apply_filters('wp_filterable_script_extra_tag', $tag, $handle, $this->l10n_store[$handle] ?? []);
 
-        if ($display) {
-            echo $tag;
-            return true;
-        }
+        echo $tag;
+        return true;
 
         return $tag;
     }
