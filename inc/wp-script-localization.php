@@ -23,7 +23,6 @@ class WpScriptLocalization
 {
     // Only allow certain script handles to be modified.
     const ALLOWED_SCRIPT_HANDLES = [
-        'ccfw-script',
         'wp-sentry-browser',
     ];
 
