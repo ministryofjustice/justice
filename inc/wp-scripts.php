@@ -41,10 +41,22 @@ class WpFilterableScripts extends WP_Scripts
          * https://wordpress.stackexchange.com/a/284495/198117
          */
         if ($GLOBALS['wp_scripts'] instanceof WP_Scripts) {
-            $missing_scripts = array_diff_key($GLOBALS['wp_scripts']->registered, $this->registered);
+            $old = $GLOBALS['wp_scripts'];
+
+            $missing_scripts = array_diff_key($old->registered, $this->registered);
             foreach ($missing_scripts as $mscript) {
                 $this->registered[$mscript->handle] = $mscript;
             }
+
+            // Also carry over queue/print state, otherwise anything already
+            // queued, printed, or grouped (e.g. wp-admin's script
+            // concatenation groups) is lost when we swap the global out,
+            // which causes scripts to be reprinted or concatenation
+            // metadata (like "//# sourceURL=...") to leak into the page.
+            $this->queue  = $old->queue;
+            $this->done   = $old->done;
+            $this->to_do  = $old->to_do;
+            $this->groups = $old->groups;
         }
     }
 
@@ -66,16 +78,24 @@ class WpFilterableScripts extends WP_Scripts
             return $output;
         }
 
+        // When $display is false, WordPress is gathering raw, unwrapped
+        // inline JS to concatenate across multiple handles (e.g. wp-admin's
+        // script concatenation of jquery-core, jquery-migrate, utils,
+        // wp-dom-ready, wp-hooks, etc). Returning a wrapped <script> tag
+        // here — instead of the raw string — corrupts that concatenated
+        // bundle: the nested </script> closes the outer concat <script>
+        // block early, and everything after it (including the
+        // "//# sourceURL=..." comment) leaks into the page as plain text.
+        if (! $display) {
+            return $output;
+        }
+
         $tag = wp_get_inline_script_tag($output, array('id' => "{$handle}-js-extra"));
 
         $tag = apply_filters('wp_filterable_script_extra_tag', $tag, $handle, $this->l10n_store[$handle] ?? []);
 
-        if ($display) {
-            echo $tag;
-            return true;
-        }
-
-        return $tag;
+        echo $tag;
+        return true;
     }
 
     /**

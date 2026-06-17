@@ -46,7 +46,7 @@ class WpScriptLocalization
     public function addHooks(): void
     {
         // Initialise our custom WP_Scripts class.
-        //add_action('init', [self::class, 'replaceWpScripts'], 100); //REVIEW
+        add_action('init', [self::class, 'replaceWpScripts'], 100);
 
         // Load the script-localization.js script.
         // This script contains the mojLoadLocalizedData() function
@@ -179,7 +179,5 @@ class WpScriptLocalization
         $tag .= self::LOAD_DATA_INLINE_SCRIPT;
 
         return $tag;
-
-        return $value;
     }
 }

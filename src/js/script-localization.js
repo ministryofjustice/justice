@@ -1,5 +1,4 @@
 window.mojLocalizedDataEntries = [
-  { id: "ccfw-script-js-extra", loaded: false, vars: ["ccfwData"] },
   { id: "wp-sentry-browser-js-extra", loaded: false, vars: ["wp_sentry"] },
 ];
 
