@@ -19,43 +19,9 @@ class Redirects
 
     public function addHooks()
     {
-        add_filter('srm_max_redirects', fn () => 10000);
-        add_filter('srm_default_direct_status', fn () => 301);
-        add_filter('srm_restrict_to_capability', [$this, 'addRedirectToEditor']);
         add_action('template_redirect', [$this, 'redirectToAdmin']);
         add_action('template_redirect', [$this, 'tryCleanUrlRedirect']);
-        add_filter('gettext_safe-redirect-manager', [$this, 'customTranslations']);
-        add_filter('gettext_with_context_safe-redirect-manager', [$this, 'customTranslations']);
         add_filter('default_post_metadata', [$this, 'customDefaults'], 10, 3);
-    }
-
-
-    /**
-     * Add redirect capability to editor role.
-     *
-     * This is the only way to get the capability that is used to restrict access to the plugin.
-     * We copy the code from the plugin, to add the capability to the editor role.
-     *
-     * @param string $redirect_capability
-     * @return string
-     */
-
-    public function addRedirectToEditor(string $redirect_capability): string
-    {
-
-        $roles = array('editor');
-
-        foreach ($roles as $role) {
-            $role = get_role($role);
-
-            if (empty($role) || $role->has_cap($redirect_capability)) {
-                continue;
-            }
-
-            $role->add_cap($redirect_capability);
-        }
-
-        return $redirect_capability;
     }
 
     /**
@@ -143,28 +109,6 @@ class Redirects
         // 301 redirect to the correct page.
         wp_safe_redirect(get_the_permalink($post_id), 301);
         exit;
-    }
-
-    /**
-     * Custom translations for the plugin.
-     *
-     * Showing Safe Redirect Manager will not make sense to the editors,
-     * replace it with Redirect Manager.
-     *
-     * @param string $translation
-     * @return string
-     */
-
-    public function customTranslations($translation)
-    {
-        // Regex replace 'Safe Redirect Manager' with 'Redirect Manager'.
-        $translation = preg_replace('/Safe Redirect Manager/', 'Redirect Manager', $translation);
-        // Update the 'Redirect from' text.
-        $translation = preg_replace('/this WordPress installation \(or the sub-site, if you are running a multi-site\)/', 'this website', $translation);
-        // Update the 'Redirect to' text.
-        $translation = preg_replace('/ \(not your WordPress installation\)/', '', $translation);
-
-        return $translation;
     }
 
     /**
