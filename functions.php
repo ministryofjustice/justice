@@ -14,8 +14,6 @@ require_once 'inc/admin.php';
 require_once 'inc/admin-branding.php';
 require_once 'inc/block-editor.php';
 require_once 'inc/breadcrumbs.php';
-require_once 'inc/commands.php';
-require_once 'inc/content-quality/commands.php';
 require_once 'inc/content-quality/content-quality.php';
 require_once 'inc/content-links.php';
 require_once 'inc/content.php';
@@ -51,7 +49,6 @@ if (getenv('WP_ENV') === 'development') {
 
 new Justice\Admin();
 new Justice\AdminBranding();
-new Justice\Commands();
 new Justice\Comments();
 new Justice\Content();
 new Justice\ContentQuality();
