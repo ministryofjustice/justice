@@ -90,4 +90,33 @@
             }
         }
     }
+
+    &__version-nav {
+        position: absolute;
+        top: 0px;
+        padding: 6px;
+        right: 0;
+        background: var(--justice-primary-black);
+        @media screen and (min-width: mixins.$justice-md) {
+            right: 50%;
+            transform: translateX(50%);
+        }
+
+        a {
+            text-decoration: none;
+            &:hover {
+                text-decoration: underline;
+            }
+        }
+        
+        &-item {
+            color: white;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 13px;
+            &--canary {
+                background: #14B8A6;
+            }
+        }
+    }
 }
