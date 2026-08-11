@@ -2,8 +2,6 @@
 
 namespace MOJ\Justice;
 
-use Roots\WPConfig\Config;
-
 if (!defined('ABSPATH')) {
     exit;
 }
@@ -34,7 +32,7 @@ class ThemeAssets
 
     public function loadStyles(): void
     {
-        wp_enqueue_style('justice-styles', get_template_directory_uri() . '/dist/css/app.min.css', [], 2.1);
+        wp_enqueue_style('justice-styles', get_template_directory_uri() . '/dist/css/app.min.css', [], 2.2);
     }
 
     /**
