@@ -67,7 +67,7 @@ class Admin
             $script_asset['version'],
             [
                 // Defer the script to avoid render blocking.
-                'defer' => true,
+                'strategy' => 'defer',
             ]
         );
 
