@@ -20,6 +20,7 @@ class Redirects
     public function addHooks()
     {
         add_action('template_redirect', [$this, 'redirectToAdmin']);
+        add_action('template_redirect', [$this, 'redirectToCookies']);
         add_action('template_redirect', [$this, 'tryCleanUrlRedirect']);
         add_filter('default_post_metadata', [$this, 'customDefaults'], 10, 3);
     }
@@ -66,6 +67,32 @@ class Redirects
 
         // Redirect to the post edit page. 302 is the default status code.
         wp_safe_redirect(get_edit_post_link($post_id, '_admin'));
+        exit;
+    }
+
+    /**
+     * Redirect from /privacy/cookies to /cookies
+     *
+     * @return void
+     */
+
+    public function redirectToCookies(): void
+    {
+        // If not a 404 page then return.
+        if (!is_404()) {
+            return;
+        }
+
+        global $wp;
+
+        $url = home_url($wp->request);
+        $pattern = '/\/privacy\/cookies$/';
+
+        if (!preg_match($pattern, $url)) {
+            return;
+        }
+
+        wp_safe_redirect(home_url('cookies'));
         exit;
     }
 
