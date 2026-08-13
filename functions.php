@@ -35,7 +35,6 @@ require_once 'inc/theme.php';
 require_once 'inc/updates.php';
 require_once 'inc/utils.php';
 require_once 'inc/wp-script-localization.php';
-require_once 'inc/wp-scripts.php';
 
 if (getenv('WP_ENV') === 'development') {
     $debug = new Justice\Debug();
