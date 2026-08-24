@@ -32,7 +32,7 @@ class ThemeAssets
 
     public function loadStyles(): void
     {
-        wp_enqueue_style('justice-styles', get_template_directory_uri() . '/dist/css/app.min.css', [], 2.2);
+        wp_enqueue_style('justice-styles', get_template_directory_uri() . '/dist/css/app.min.css', [], 2.3);
     }
 
     /**
