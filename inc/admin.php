@@ -46,9 +46,7 @@ class Admin
      * Load the block editor styles.
      *
      * editor.min.css contains rules that target the block canvas (.editor-styles-wrapper,
-     * .wp-block-*), which lives inside an iframe. Styles enqueued on admin_enqueue_scripts
-     * only land in the outer admin document, so the editor copies them into the iframe and
-     * logs "... was added to the iframe incorrectly". Enqueuing on enqueue_block_assets lets
+     * .wp-block-*), which lives inside an iframe. Enqueuing on enqueue_block_assets lets
      * the editor load the stylesheet into the iframe (and the editor chrome) properly.
      *
      * @return void
