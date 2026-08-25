@@ -25,6 +25,7 @@ class Admin
     public function addHooks()
     {
         add_action('admin_enqueue_scripts', array($this, 'enqueueStyles'));
+        add_action('enqueue_block_assets', array($this, 'enqueueBlockEditorStyles'));
         add_action('admin_enqueue_scripts', array($this, 'loadScripts'));
         add_action('admin_menu', [$this, 'removeCustomizer'], 999);
         add_filter('rest_page_query', [$this, 'increaseDropdownLimit'], 9, 2);
@@ -39,6 +40,27 @@ class Admin
     public static function enqueueStyles(): void
     {
         wp_enqueue_style('justice-admin-style', get_template_directory_uri() . '/dist/css/admin.min.css');
+    }
+
+    /**
+     * Load the block editor styles.
+     *
+     * editor.min.css contains rules that target the block canvas (.editor-styles-wrapper,
+     * .wp-block-*), which lives inside an iframe. Styles enqueued on admin_enqueue_scripts
+     * only land in the outer admin document, so the editor copies them into the iframe and
+     * logs "... was added to the iframe incorrectly". Enqueuing on enqueue_block_assets lets
+     * the editor load the stylesheet into the iframe (and the editor chrome) properly.
+     *
+     * @return void
+     */
+
+    public static function enqueueBlockEditorStyles(): void
+    {
+        // enqueue_block_assets also fires on the front end; these styles are editor-only.
+        if (!is_admin()) {
+            return;
+        }
+
         wp_enqueue_style('justice-editor-style', get_template_directory_uri() . '/dist/css/editor.min.css');
     }
 
