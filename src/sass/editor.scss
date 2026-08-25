@@ -5,6 +5,17 @@
 .editor-styles-wrapper {
   @include mixins.css-vars();
 
+  // Set form for all editor text
+  &, p {
+    font-family: var(--body-font);
+  }
+
+  // Set form for all headings in the editor canvas
+  h1, h2, h3, h4, h5, h6 {
+      font-family: var(--heading-font);
+      font-weight: var(--heading-font-normal);
+  }
+
   .visually-hidden {
     @include mixins.visually-hidden;
   }
