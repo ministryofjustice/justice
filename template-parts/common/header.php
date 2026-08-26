@@ -71,14 +71,6 @@ defined('ABSPATH') || exit;
                 <div class="header__logotype"></div>
             </div>
         </a>
-        <?php if ($args['show_version_nav'] ?? false) : ?>
-            <div class="header__version-nav">
-                <span class="header__version-nav-item header__version-nav-item--stable">
-                    Login to activate stable version
-                </span>
-                <span class="header__version-nav-item header__version-nav-item--canary">Viewing preview version</span>
-            </div>
-        <?php endif; ?>
         <?php if ($args['show_search']) : ?>
             <div class="header__search">
                 <?php get_template_part('template-parts/common/text-input-form', null, $args['search_form']); ?>

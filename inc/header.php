@@ -45,11 +45,4 @@ class Header
             ]
         ];
     }
-
-    public static function showVersionNav(): bool
-    {
-        $visitor_is_previewing_canary = ($_COOKIE['X-Canary'] ?? '') === 'always';
-
-        return !is_admin_bar_showing() && $visitor_is_previewing_canary;
-    }
 }

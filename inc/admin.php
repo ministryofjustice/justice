@@ -33,7 +33,6 @@ class Admin
         add_action('wp_before_admin_bar_render', [$this, 'filterAdminBar']);
         add_filter('admin_body_class', [$this, 'addRoleToAdminBody']);
         add_filter('wp_sentry_public_options', [$this, 'filterSentryJsOptions']);
-        add_action('admin_bar_menu', [$this, 'addPlatformVersionToAdminBar'], 500);
     }
 
 
@@ -254,30 +253,6 @@ class Admin
                 // you'll need to opt-in via networkDetailAllowUrls
                 'networkDetailAllowUrls' => [get_home_url()],
             ]
-        ));
-    }
-
-    /**
-     * Add controls to the admin bar so that logged in visitors can see
-     * which site version they are on: stable, or canary.
-     */
-    public function addPlatformVersionToAdminBar(\WP_Admin_Bar $wp_admin_bar)
-    {
-        $visitor_is_previewing_canary = ($_COOKIE['X-Canary'] ?? '') === 'always';
-
-        if (!$visitor_is_previewing_canary) {
-            return;
-        }
-
-        $wp_admin_bar->add_menu(array(
-            'id'    => 'moj-platform-version-stable',
-            'title' => 'Activate stable version',
-            'href'  => get_admin_url() . '?moj_version=reset'
-        ));
-        $wp_admin_bar->add_menu(array(
-            'id'    => 'moj-platform-version-canary',
-            'title' => 'Viewing preview version',
-            'href'  => '#'
         ));
     }
 }
