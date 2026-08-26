@@ -130,6 +130,16 @@ class Documents
         // letting us correct the s3:// path it builds. See fixDocumentS3UploadDir().
         add_filter('upload_dir', [self::class, 'fixDocumentS3UploadDir'], 20);
 
+        // Point WPDR at the s3-uploads bucket. Only active when s3-uploads is in play
+        // (non-local environments), matching the gate in mu-plugins/load.php.
+        if (
+            defined('S3_UPLOADS_BUCKET') &&
+            S3_UPLOADS_BUCKET &&
+            getenv('WP_ENVIRONMENT_TYPE') !== 'local'
+        ) {
+            add_filter('pre_site_option_document_upload_directory', [self::class, 'filterDocumentUploadDirectory']);
+        }
+
         // Permalinks
         $this->addPermalinkHooks();
     }
@@ -172,6 +182,24 @@ class Documents
         }
 
         return $dirs;
+    }
+
+
+    /**
+     * Point WP Document Revisions at the s3-uploads bucket.
+     *
+     * Short-circuits the `document_upload_directory` site option so document file paths
+     * resolve via the s3:// stream wrapper, instead of a stale local basedir that WPDR
+     * caches in its constructor before s3-uploads has filtered `upload_dir`.
+     *
+     * Registered on `pre_site_option_document_upload_directory` only when s3-uploads is in
+     * play (non-local environments), matching the gate in mu-plugins/load.php.
+     *
+     * @return string The s3:// upload directory; %site_id% is expanded by WPDR per site.
+     */
+    public static function filterDocumentUploadDirectory(): string
+    {
+        return 's3://' . S3_UPLOADS_BUCKET . '/uploads/sites/%site_id%';
     }
 
 
