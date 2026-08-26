@@ -2,7 +2,6 @@
 
 A WordPress theme designed to display public-facing, procedural information for the **Ministry of Justice, UK**.
 
-- **Version:** 10.1.2
 - **Author:** Ministry of Justice | Justice Digital
 - **Theme URI:** https://www.justice.gov.uk/
 - **Repository:** https://github.com/ministryofjustice/justice
