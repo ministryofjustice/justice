@@ -307,7 +307,10 @@ class Documents
             // Be aware that this url will still work even if the document visibility is later changed to private.
             // This should not be a problem with justice.gov.uk as the document visibility is always public.
             // It is becoming an issue, let's sign the URLs with a short expiry time.
+            global $wpdr;
+            remove_filter('wp_get_attachment_url', [$wpdr, 'attachment_url_filter']);
             $url = wp_get_attachment_url($attach_id);
+            add_filter('wp_get_attachment_url', [$wpdr, 'attachment_url_filter'], 10, 2);
             wp_redirect($url);
             exit;
         }
