@@ -46,7 +46,6 @@ get_template_part('template-parts/common/header', null, [
     'show_search' => Header::showSearch(),
     'search_form' => Header::FORM_ARGS,
     'links' => Header::getLinks(),
-    'show_version_nav' => Header::showVersionNav(),
 ]);
 
 ?>
