@@ -28,13 +28,19 @@ class Redirects
     /**
      * Redirect frontend urls appended with /_admin to the admin page.
      *
+     * Logged-out users get the normal 404. Don't be tempted to redirect them to
+     * wp_login_url(): WPS Hide Login (network-active) deliberately returns '#' from
+     * its login_url filter whenever is_404() is true, so that 404 pages can't leak
+     * the hidden login slug. Because this hook only runs on 404s, that produces
+     * `Location: #` and a browser redirect loop (ERR_TOO_MANY_REDIRECTS).
+     *
      * @return void
      */
 
     public function redirectToAdmin(): void
     {
-        // If not a 404 page then return.
-        if (!is_404()) {
+        // If not a 404 page, or the user is not logged in, then return.
+        if (!is_404() || !is_user_logged_in()) {
             return;
         }
 
@@ -46,13 +52,6 @@ class Redirects
         // If url does not end in /_admin then return.
         if (!preg_match($pattern, $url)) {
             return;
-        }
-
-        // Is user logged in?
-        if (!is_user_logged_in()) {
-            // Redirect to login page, with the current url as the redirect_to parameter.
-            wp_safe_redirect(wp_login_url($url));
-            exit;
         }
 
         // Remove /_admin.
