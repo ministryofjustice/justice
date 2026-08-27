@@ -105,6 +105,9 @@ class Core
     public function removeSubmenus(): void
     {
         remove_submenu_page('tools.php', 'tools.php');
+        // Remove Appearance > Fonts menu,
+        // the URL is still accessible to admins but that's fine.
+        remove_submenu_page( 'themes.php', 'font-library.php' );
         // Remove Appearance > Patterns menu,
         // the URL is still accessible to admins but that's fine.
         remove_submenu_page('themes.php', 'site-editor.php?p=/pattern');

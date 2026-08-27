@@ -196,6 +196,9 @@ class BlockEditor
         // Disable the Openverse media category.
         $settings['enableOpenverseMediaCategory'] = false;
 
+        // Disable font library functionality in the block editor settings
+        $settings['fontLibraryEnabled'] = false;
+
         return $settings;
     }
 }
