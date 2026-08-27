@@ -91,7 +91,8 @@ class Documents
         add_filter('document_serve', [$this, 'maybeRedirectToAttachmentUrl'], null, 3);
         add_action('template_redirect', [$this, 'redirectLegacyDocumentUrls']);
         // S3
-        add_filter('as3cf_object_meta', [$this, 'addObjectMeta'], 10, 4);
+        add_filter('s3_uploads_putObject_params', [$this, 'addObjectMeta']);
+        add_action('document_permalink_updated', [$this, 'syncContentDisposition']);
         // Add parent page to the document post type.
         add_action('add_meta_boxes', [$this, 'addMetaBoxes']);
         add_filter('document_permalink', [$this, 'addParentPagesToPermalink'], 20, 2);
@@ -417,56 +418,177 @@ class Documents
 
 
     /**
-     * Add object meta to the S3 object.
+     * Set Content-Disposition on document files as they are written to S3.
      *
-     * This function is called whenever any file is uploaded to S3.
-     * Via the Media Library or the Document post type.
+     * wp-s3-uploads writes the object via its stream wrapper during wp_handle_upload(),
+     * i.e. before the attachment post exists, so there is no attachment ID available here
+     * (unlike the old as3cf_object_meta filter). Instead, detect a document upload the same
+     * way WPDR does: while it is handling one, its document_upload_dir_filter is hooked
+     * (added in filename_rewrite(), removed after metadata generation) and the parent
+     * document ID is in $_POST['post_id'].
      *
-     * @param array $args
-     * @param int $attach_id
+     * The filter fires twice per file - once for the empty-body probe in stream_open()
+     * and once for the real write in stream_flush() - with the same params, which is harmless.
+     *
+     * @see https://github.com/ministryofjustice/wp-s3-uploads/blob/main/inc/class-stream-wrapper.php
+     *
+     * @param array $params S3Client::putObject parameters (Bucket, Key, Body, ContentType, ...).
      * @return array
      */
 
-    public function addObjectMeta(array $args, int $attach_id): array
+    public function addObjectMeta(array $params): array
     {
+        global $wpdr;
 
-        // Return if we're not dealing with a document attachment.
-        if (!$this->isDocumentAttachment($attach_id)) {
-            return $args;
+        // Return if WPDR isn't mid-way through a document upload.
+        if (
+            !($wpdr instanceof \WP_Document_Revisions)
+            || !has_filter('upload_dir', [$wpdr, 'document_upload_dir_filter'])
+            || empty($_POST['post_id'])
+            || empty($params['Key'])
+        ) {
+            return $params;
         }
 
-        // Get info based on the attachment URL.
-        $path_info = pathinfo($args['Key']);
+        $document_id = (int) $_POST['post_id'];
 
-        // Return if we don't need to mark the url as a download, based on file extension.
-        if (!in_array($path_info['extension'], $this->content_disposition_extensions)) {
-            return $args;
+        // Return if the parent post is not a document.
+        if (!$this->isDocument($document_id)) {
+            return $params;
         }
 
-        // Mark as downloadable download.
-        $args['ContentDisposition'] = 'attachment';
+        $disposition = $this->getContentDisposition($document_id, pathinfo($params['Key'], PATHINFO_EXTENSION));
 
-        // If filename is hex & 32 chars long, then set a ContentDisposition filename.
-        if (preg_match('/^[a-f0-9]{32}$/', $path_info['filename'])) {
-            // Get the basename from the request.
-            $content_disposition_basename = sanitize_file_name($_REQUEST['name']);
+        if ($disposition) {
+            $params['ContentDisposition'] = $disposition;
+        }
 
-            // Get the document ID, permalink and filename.
-            $document_id = wp_get_post_parent_id($attach_id);
-            $document_permalink = get_permalink($document_id);
+        return $params;
+    }
 
-            // If the permalink is set then use that as the filename.
-            if (!str_contains($document_permalink, '?post_type=document&p=')) {
-                $document_filename = pathinfo($document_permalink, PATHINFO_FILENAME);
-                // Build a basename from the document permalink filename with the file extension.
-                $content_disposition_basename = $document_filename . '.' . $path_info['extension'];
+    /**
+     * Build the Content-Disposition value for a document's file.
+     *
+     * The filename is always derived from the document itself: its permalink slug, or its title
+     * while it has no public permalink yet (e.g. a new document that is uploaded before it is
+     * published). It is never taken from the uploaded file's original name, so it can't carry a
+     * name over from a different document. Returns null for extensions that aren't downloads.
+     *
+     * @param int $document_id
+     * @param string $extension The file extension of the S3 object.
+     * @return string|null
+     */
+    private function getContentDisposition(int $document_id, string $extension): ?string
+    {
+        if (!in_array($extension, $this->content_disposition_extensions)) {
+            return null;
+        }
+
+        $permalink = get_permalink($document_id);
+
+        if ($permalink && !str_contains($permalink, '?post_type=document&p=')) {
+            $basename = pathinfo($permalink, PATHINFO_FILENAME);
+        } else {
+            $basename = sanitize_title(get_post_field('post_title', $document_id));
+        }
+
+        return 'attachment' . ($basename ? ';filename="' . $basename . '.' . $extension . '"' : '');
+    }
+
+    /**
+     * Re-stamp the Content-Disposition of a document's files in S3 when its permalink changes.
+     *
+     * Content-Disposition is set when the file is first written to S3 (see addObjectMeta), but the
+     * document may not have its final slug at that point - a new document is normally uploaded before
+     * it is published - and slugs can be edited later. S3 metadata can't be patched in place, so the
+     * object is copied onto itself with MetadataDirective=REPLACE, re-sending the headers that a
+     * REPLACE copy would otherwise drop. Ported from the legacy as3cf tweaks.
+     *
+     * Hooked to document_permalink_updated (fired from permalinks.php on publish and slug edits).
+     * Also usable for a one-off backfill, e.g.
+     *   wp eval '(new \MOJ\Justice\Documents)->syncContentDisposition(123);'
+     *
+     * @param int $document_id
+     * @return bool True if at least one S3 object now carries the right header, false if skipped or all failed.
+     */
+    public function syncContentDisposition(int $document_id): bool
+    {
+        global $wpdr;
+
+        if (
+            !($wpdr instanceof \WP_Document_Revisions)
+            || !class_exists('\S3_Uploads\Plugin')
+            || !$this->isDocument($document_id)
+        ) {
+            return false;
+        }
+
+        // Every attachment of this document - superseded revisions are served from S3 too.
+        $attachments = $wpdr->get_attachments($document_id);
+
+        if (!$attachments) {
+            return false;
+        }
+
+        $plugin = \S3_Uploads\Plugin::get_instance();
+        $acl = defined('S3_UPLOADS_OBJECT_ACL') && S3_UPLOADS_OBJECT_ACL ? S3_UPLOADS_OBJECT_ACL : 'public-read';
+        $result = false;
+
+        foreach ($attachments as $attachment) {
+            $file = get_attached_file($attachment->ID);
+            $location = $file ? $plugin->get_s3_location_for_path($file) : null;
+
+            // Not on S3 (e.g. local development), nothing to do.
+            if (!$location) {
+                continue;
             }
 
-            // Write a filename to S3 metadata. This is what the downloaded file will be called.
-            $args['ContentDisposition'] .= ';filename="' . $content_disposition_basename . '"';
+            $disposition = $this->getContentDisposition($document_id, pathinfo($location['key'], PATHINFO_EXTENSION));
+
+            if (!$disposition) {
+                continue;
+            }
+
+            try {
+                $s3 = $plugin->s3();
+                $head = $s3->headObject(['Bucket' => $location['bucket'], 'Key' => $location['key']]);
+
+                if (($head['ContentDisposition'] ?? null) === $disposition) {
+                    $result = true;
+                    continue;
+                }
+
+                $params = [
+                    'Bucket' => $location['bucket'],
+                    'Key' => $location['key'],
+                    // Same encoding the AWS SDK's ObjectCopier uses for CopySource.
+                    'CopySource' => '/' . $location['bucket'] . '/' . rawurlencode($location['key']),
+                    'MetadataDirective' => 'REPLACE',
+                    'ContentDisposition' => $disposition,
+                    // Match the ACL wp-s3-uploads applies on write (a copy would otherwise reset it).
+                    'ACL' => $acl,
+                ];
+
+                // A REPLACE copy discards the existing metadata - carry over what the original write set.
+                foreach (['ContentType', 'CacheControl', 'Expires', 'ServerSideEncryption', 'SSEKMSKeyId', 'Metadata'] as $header) {
+                    if (!empty($head[$header])) {
+                        $params[$header] = $head[$header];
+                    }
+                }
+
+                $s3->copyObject($params);
+                $result = true;
+            } catch (\Throwable $e) {
+                error_log(sprintf(
+                    'Documents::syncContentDisposition failed for document %d, attachment %d: %s',
+                    $document_id,
+                    $attachment->ID,
+                    $e->getMessage()
+                ));
+            }
         }
 
-        return $args;
+        return $result;
     }
 
     /*
@@ -776,10 +898,10 @@ class Documents
             // Or, get it it from the full size
         } else if (!empty($post_meta['sizes']['full']['filesize']) && is_int($post_meta['sizes']['full']['filesize'])) {
             $filesize = $post_meta['sizes']['full']['filesize'];
-            // But if it's offloaded get the size saved by AS3CF
+            // Otherwise stat the file (works for s3:// paths via the wp-s3-uploads stream wrapper).
         } else {
-            $offloaded_filesize = get_post_meta($post_id, 'as3cf_filesize_total', true);
-            $filesize = !empty($offloaded_filesize) && is_int($offloaded_filesize) ? $offloaded_filesize : null;
+            $attached_file = get_attached_file($post_id);
+            $filesize = $attached_file ? (@filesize($attached_file) ?: null) : null;
         }
         return size_format($filesize);
     }
