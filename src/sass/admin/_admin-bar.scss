@@ -1,38 +1,8 @@
 /**
  * Override the admin-bar logo
  */
-div#wpadminbar #wp-admin-bar-wp-logo {
-  > .ab-item .ab-icon {
-    &:before {
-      background-image: url('../img/moj-logo-crest-white.svg');
-      background-position: 0 0;
-      background-size: cover;
-      color: rgba(0, 0, 0, 0);
-    }
-  }
-}
-
 @media print {
   #wpadminbar {
     display: none;
-  }
-}
-
-#wp-admin-bar-moj-platform-version {
-  &-stable,
-  &-canary {
-    a:after {
-      content: "";
-      display: block;
-      position: absolute;
-      inset: 4px 0;
-      z-index: -1;
-      border-radius: 10px;
-    }
-  }
-  &-canary {
-    a:after {
-      background: #14B8A6;
-    }
   }
 }
