@@ -21,10 +21,12 @@
     @include mixins.spacing('margin', 2, 'bottom');
     font-weight: var(--heading-font-normal);
     margin-top: 0;
+    color: unset;
   }
 
   p {
     @include mixins.spacing('margin', 1, 'bottom');
+    color: unset;
   }
 
   button, #cookie-page-link {
