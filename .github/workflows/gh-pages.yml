@@ -4,7 +4,7 @@ name: Deploy Documentation
 on:
   # Runs on pushes targeting main - only if the .github/pages directory changes
   push:
-    branches: ["main", "pages-debug"]
+    branches: ["main"]
     paths:
       - ".github/pages/**"
       - "public/app/*.php"
