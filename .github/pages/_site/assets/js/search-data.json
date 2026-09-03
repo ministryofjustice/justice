@@ -1,0 +1,219 @@
+{"0": {
+    "doc": "Block editor",
+    "title": "Table of contents",
+    "content": ". | Overview . | Add a block | Edit a block | . | Block types . | Tables | Footnotes | Definition lists | Inline menu - child pages | Search - child pages | To the top | . | Links and Jump Links . | Creating a link | Creating a jump link target | Identifying a jump link target | . | Q &amp; A . | How do I change block types. e.g. from a list block to a paragraph(s) block? | How do I copy the content of an existing page? | What does “This image from an external website, and will not be displayed correctly” mean? | . | . ",
+    "url": "/editing/block-editor.html#table-of-contents",
+    
+    "relUrl": "/editing/block-editor.html#table-of-contents"
+  },"1": {
+    "doc": "Block editor",
+    "title": "Overview",
+    "content": ". | Overview | New block | Toolbar | Block settings | HTML anchor | . When you edit a page (see pages) you’ll use the block editor. The block editor is used for creating and editing content on the justice website. A block is a unit of content that can be moved and edited independently of other blocks. To see a List View of the blocks on a page, click the Overview button towards the top left of the editor. The list view is useful for quickly navigating between blocks, and changing the order of blocks. See the annotated screenshot above for the location of the Overview button. Add a block . To add a new block, click the + icon at the top left of the editor. See the screenshot for the location of the New block (+) button. Alternatively, press Enter at the end of a block to create a new block below it. Type forward slash ‘/’ to see a list of block types you can add, start typing to select the one you want. Edit a block . To edit a block, click on the block you want to edit. With the majority of blocks you can usually just start typing. Blocks like tables, footnotes, and definition lists have additional settings or instructions, as explained in the Block types section below. When you’re editing a block, you’ll see a toolbar appear above the block. This toolbar contains options for formatting the block, and for moving or deleting the block. Along the right hand side of the editor, you’ll see a sidebar with additional block settings. This sidebar will change depending on the block you have selected. See the screenshot for the location of the toolbar &amp; block settings. ",
+    "url": "/editing/block-editor.html#overview",
+    
+    "relUrl": "/editing/block-editor.html#overview"
+  },"2": {
+    "doc": "Block editor",
+    "title": "Block types",
+    "content": "Tables . Upon creation of a table block, you can define the number of rows and columns. Rows and columns can be added or removed later by clicking Edit table icon towards the right of the toolbar. For accessibility reasons, tables should always have a header section. To add a header section, click the table, then in the Block tab of the side menu, toggle the Header section. Footnotes . In previous versions of the justice website, footnotes were created using links and anchor tags. The current content of the site works exactly like that. For example there are links throughout the content that link to footnotes at the bottom of the page. These can be created and edited in much the same way as any other link. But, the block editor also has a built-in block for footnotes, which is a more user-friendly way to create footnotes. To use the footnote block: . | Highlight the text you want to turn into a footnote. | Click the down arrow towards the right of the toolbar. | Select the Footnote block from the dropdown menu. | A Footnote block will be added to the bottom of the page. | Type the footnote text into the block - the links will be automatically created for you. | . Definition lists . The definition list block is used to create a list of terms and their definitions. This is the ideal block to make a user and SEO friendly glossary of terms. To use this block follow these steps: . | Create a Definition List block. | Click the + icon to add a Definition Term block - this is the term that will be defined. | Click the + icon to add a Definition Description block - this is the definition of the term. | Repeat the above steps to add more terms and definitions. | . Inline menu - child pages . This block is used to insert a menu that will display child pages of the current page. It’s currently only used on the ‘Help’ page. Search - child pages . This block is used to insert a search bar that will search child pages of the current page. It’s currently only used on the ‘Civil Procedure Rules’ page. To the top . This block is used to create a link that will take the user back to the top of the page. As it may be added many times in a single page it’s useful to remember the shortcut to add it. Press enter, then type / and then type top and press enter. ",
+    "url": "/editing/block-editor.html#block-types",
+    
+    "relUrl": "/editing/block-editor.html#block-types"
+  },"3": {
+    "doc": "Block editor",
+    "title": "Links and Jump Links",
+    "content": "Creating a link . To add links to content, follow these steps: . | Highlight the text you want to link from. | Click the Link icon in the toolbar. | In the URL field, enter the URL you want to link to. | This can be an external URL like https://www.gov.uk/search/news-and-communications | Or, an internal URL like /courts/procedure-rules/civil | Or, a jump link target like #my-anchor | . Creating a jump link target . Jump links can be used to link to a specific part of a page. This can be done one of 2 ways. If you’re editing a block, you can jump to the block by following these steps: . | On the right hand side of the editor, click the Advanced tab. | In the HTML anchor field, enter the anchor name. | This should be a unique name that describes the content, e.g. my-block-anchor. | You can now create a link by following the steps in Creating a link and using the anchor name as the URL, e.g. #my-block-anchor | . See the annotated screenshot above for the location of the HTML anchor field. If the block doesn’t have the HTML Anchor field, or, you want to jump to the middle of a block, follow these steps: . | Write a space character where you want the anchor to be. | Highlight the space character. | Click the down arrow towards the right of the toolbar. | Select ‘Anchor’ from the dropdown menu. | In the Anchor field, enter the anchor name. | This should be a unique name that describes the content, e.g. my-inline-anchor. | You can now create a link by following the steps in Creating a link and using the anchor name as the URL, e.g. #my-inline-anchor | . Identifying a jump link target . When you’re editing a block you can see if it has a block level anchor by following these steps: . | Select the block you want to check. | On the right hand side of the editor, click the Advanced tab. | In the HTML anchor field, you’ll see the anchor name if it has one. | . See the annotated screenshot above for the location of the HTML anchor field. Inline anchors are identified by a blue underline, these may be single spaces, or in some cases one or more word. To spot these more easily follow these steps: . | Highlight the space or text that has a blue underline. | Click the down arrow towards the right of the toolbar. | Select ‘Anchor’ from the dropdown menu. | Toggle the ‘Show anchor icons’ switch to on. | . You’ll now see a small anchor icon next to all inline anchors. ",
+    "url": "/editing/block-editor.html#links-and-jump-links",
+    
+    "relUrl": "/editing/block-editor.html#links-and-jump-links"
+  },"4": {
+    "doc": "Block editor",
+    "title": "Q &amp; A",
+    "content": "How do I change block types. e.g. from a list block to a paragraph(s) block? . To change a block type, click on the block you want to change, then click on the block type icon at the far left of the toolbar. This will open a dropdown menu where you can select the new block type. If you have a list block (bullets or numbers) you may need to click the block type icon twice. If your cursor is on a list item, the first click will select the list block, the second click will open the dropdown menu. How do I copy the content of an existing page? . | Click on the three dots in the top right corner of the page editor. | In the list that appears click on the Copy all blocks option, then use paste to copy the blocks over. | If you just want to copy some of a page’s blocks, click and drag to highlight the required blocks and copy and paste in the new location. | Alternatively, if you are familiar with HTML you can copy and paste that directly if that’s easier. Click on the three dots in the upper right corner and select Code editor from the menu. | . What does “This image from an external website, and will not be displayed correctly” mean? . This error is shown when an image from another website is embedded into a page. If the image in question is required: . | First add the image to the Media Library. | Add alt text to describe the image. | Copy the image URL and use that in the page content. | . If the image is not necessary, or has been inserted accidentally, then it is safe to delete the image and save the page. ",
+    "url": "/editing/block-editor.html#q--a",
+    
+    "relUrl": "/editing/block-editor.html#q--a"
+  },"5": {
+    "doc": "Block editor",
+    "title": "Block editor",
+    "content": " ",
+    "url": "/editing/block-editor.html",
+    
+    "relUrl": "/editing/block-editor.html"
+  },"6": {
+    "doc": "Content quality",
+    "title": "Table of contents",
+    "content": ". | Overview | Identifying pages with issues | Filtering pages by issue | Settings | Resolving issues . | Anchor without destination | Headings without content | Inaccessible email text | Incomplete table header | Incorrect spellings | Table without header section | . | . ",
+    "url": "/editing/content-quality.html#table-of-contents",
+    
+    "relUrl": "/editing/content-quality.html#table-of-contents"
+  },"7": {
+    "doc": "Content quality",
+    "title": "Overview",
+    "content": ". | Screen Options | Checkbox | Summary and links | . Screenshot of the Dashboard screen with Content Quality widget To reveal the Content Quality widget, click the Screen Options button, then check the Content Quality checkbox. The Content Quality widget provides an overview of the content quality issues across your site. It displays a summary of the number of pages with issues and allows you to quickly navigate to those pages. ",
+    "url": "/editing/content-quality.html#overview",
+    
+    "relUrl": "/editing/content-quality.html#overview"
+  },"8": {
+    "doc": "Content quality",
+    "title": "Identifying pages with issues",
+    "content": ". | Screen Options | Checkbox | Content Quality column | . Screenshot of the Pages admin screen (with issue column) To reveal the Content Quality column, click the Screen Options button, then check the Content Quality checkbox. The Content Quality column displays the number of issues for each page. | If a page has no issues, it will show checkmark icon. | If a page has issues, it will show a description of the issue(s). | . ",
+    "url": "/editing/content-quality.html#identifying-pages-with-issues",
+    
+    "relUrl": "/editing/content-quality.html#identifying-pages-with-issues"
+  },"9": {
+    "doc": "Content quality",
+    "title": "Filtering pages by issue",
+    "content": ". | Issue Filter | . Screenshot of the Pages admin screen (with filter) To filter pages by issue, use the Issue Filter dropdown. This allows you to quickly find pages with specific content quality issues. ",
+    "url": "/editing/content-quality.html#filtering-pages-by-issue",
+    
+    "relUrl": "/editing/content-quality.html#filtering-pages-by-issue"
+  },"10": {
+    "doc": "Content quality",
+    "title": "Settings",
+    "content": "Settings related to content quality can be found on the settings screen. Typically, updating these settings is not necessary, but they can be useful for advanced users. | Allowed words | Misspellings | . Screenshot of the Content Quality Settings screen Here, there is a text input filed for adding allowed words to the spell checker dictionary. Words should be entered one per line. This field is useful for allowing specific terms that are not recognized by the (British English) spell checker, such as acronyms, latin phrases, or specific legal terms. In some cases it may be useful to add a mispelled word to the dictionary. For example the misspelled word “affadavit” has been added, because there is the following content on the site: “…para 13.4 reference to ‘affadavit’ should be to ‘affidavit’” . To assist in identifying misspelled words across the site, there is a list of misspellings. These should either be corrected or added to the allowed words list. ",
+    "url": "/editing/content-quality.html#settings",
+    
+    "relUrl": "/editing/content-quality.html#settings"
+  },"11": {
+    "doc": "Content quality",
+    "title": "Resolving issues",
+    "content": "The following sections can be used as reference for resolving issues, or will be useful when writing new content. Anchor without destination . This issue occurs when a Jump Link is created without a valid target. Sometimes, this issue will surface over time, as the target of the Jump Link is removed or renamed. On the Pages admin screen, the issue will be displayed as “The following anchor is missing a target: example-target”. This means that there is a Jump Link with the target #example-target that does not point to any element on the page. To resolve this issue, you need to edit the page in question and either: . | Remove the jump link that points to the missing target. | Create a jump link target with the corresponding ID to the page, so that the jump link can point to it. | . If necessary, make reference to the Jump Links section of the Block Editor documentation for more information on how to create jump links. Headings without content . This issue occurs when a heading element is empty, meaning it does not contain any text. Empty headings can cause confusion for screen readers and should be avoided. On the Pages admin screen, the issue will be displayed as “There is 1 heading without content”. To identify empty headings, from the edit page screen, . | Click the “Document overview” button in the top right corner. | This will open the document overview panel, which lists all headings on the page. | In the list view, look for the heading icon without any text next to it. This indicates an empty heading. | . | Document Overview button | Empty heading icon | . Screenshot of the Page Edit screen with Document Overview To resolve the issue, you need to either: . | Remove the empty heading element | Or, add text to the heading element | . When deleting an empty header element, check that you are not inadvertently deleting a heading that is used as a jump link target. This will be indicated by a blue underline. In this case, an additional option is to change the block type from heading to a paragraph. | Blue underline | . Screenshot of the an empty heading containing an jump link target Inaccessible email text . An email address link with the text displayed in full (example@domain.com), clearly signals to users that clicking the link will open their default email client. However, on some pages emails are presented as linked text such as “email us”, “general queries” or “customer services hq”. This inconsistency can lead to confusion as users may interpret plain linked text as navigation to a new page, rather than triggering an email action. On the Pages admin screen, the issue will be displayed as “There is 1 email link with inaccessible text”. To resolve this issue, you need to edit the page in question and ensure that email links use the full email address as the link text - this may require the rephrasing of the surrounding text to maintain clarity and context. Incomplete table header . This issue occurs when a table has one or more header cells that are not empty. This can cause confusion for screen readers, as they expect header cells to contain descriptive text. On the Pages admin screen, the issue will be displayed as “There is 1 table with an incomplete header”. To resolve this issue, you need to edit the page in question and ensure that table is using a header section and that all table cells in the header section contain descriptive text. If a column of the table is entirely empty, it is recommended to remove that column from the table. If necessary, make reference to the Tables section of the Block Editor documentation for more information on: . | how to add a header section to a table | how to remove a table column or row | . Incorrect spellings . This issue occurs when a word is misspelled or not recognized by the spell checker. The spell checker uses British English, so it may not recognize some words that are commonly used in other variants of English. On the Pages admin screen, the issue will be displayed as “There is 1 spelling mistake: CMCC”. To resolve this issue, you need to either: . | edit the page in question and correct the spelling mistake. | if the word is a valid term that is not recognized by the spell checker, you can add it to the allowed words list in the Content Quality Settings. | . Table without header section . This issue occurs when a table is created without a header section. A header section is required for accessibility reasons, as it helps screen readers understand the structure of the table. On the Pages admin screen, the issue will be displayed as “There is 1 table without a header section”. To resolve this issue, you need to edit the page in question and add a header section to the table. Then update the table content as necessary. If necessary, make reference to the Tables section of the Block Editor documentation for more information on: . | how to add a header section to a table | how to remove a table row | . ",
+    "url": "/editing/content-quality.html#resolving-issues",
+    
+    "relUrl": "/editing/content-quality.html#resolving-issues"
+  },"12": {
+    "doc": "Content quality",
+    "title": "Content quality",
+    "content": " ",
+    "url": "/editing/content-quality.html",
+    
+    "relUrl": "/editing/content-quality.html"
+  },"13": {
+    "doc": "Documents",
+    "title": "Table of contents",
+    "content": ". | Overview | Uploading a document . | Optional document settings | Save &amp; publish the document | Choosing the document permalink | Schedule publication | Gotchas | . | Verifying a successful document upload | Linking to a document from a page | Uploading a new version of a document | Scheduling a revision | . ",
+    "url": "/editing/documents.html#table-of-contents",
+    
+    "relUrl": "/editing/documents.html#table-of-contents"
+  },"14": {
+    "doc": "Documents",
+    "title": "Overview",
+    "content": ". | Add | Title | Permalink | Upload | Summary | Parent | Workflow State | Edit | . ",
+    "url": "/editing/documents.html#overview",
+    
+    "relUrl": "/editing/documents.html#overview"
+  },"15": {
+    "doc": "Documents",
+    "title": "Uploading a document",
+    "content": "To upload a new document, follow these steps (it’s safe to click Update at any point to save your progress): . | Click Documents &gt; Add Document in the Sidebar. | Type a title for the document in the Title field. | Click Upload New Version to select the document file from your computer. | . See the annotated screenshot above for the location of the Add Document button, Title field and Upload button. Optional document settings . | After uploading a file, you have the opportunity to add an optional Revision Summary for the document. This Revision Summary will be visible only to editors and will assist in tracking changes to the document. | A Parent page may optionally be assigned to the Document. This will assist in organizing the document within the site, and form part of the document’s URL. e.g. If the parent is set to Procedure Rules, the document will be accessible at https://www.justice.gov.uk/courts/procedure-rules/documents/doc-title . Set this on the right hand side: go to Document Attributes and use the Parent page dropdown. | An optional Workflow State can be set to assist in tracking the document’s progress. This is set on the right hand side: go to Document Attributes and use the Workflow State dropdown. | . See the screenshot for the location of: the Revision Summary field, Parent page dropdown and Workflow State dropdown. Save &amp; publish the document . | If you are ready to publish the document, set Visibility to Public and click OK. | Click the Publish button. | A permalink will be generated for the document. You can change it by clicking the Edit button next to the permalink. The permalink is the URL that will be used to access the document. Ideally, it should only be set once and should not be changed after the document has been published. | Right click the permalink to either copy the link or open it in a new tab. | This permalink can now be used to link to the document from other pages on the site. | . See the screenshot for the location of the Permalink field. Choosing the document permalink . A document title is typically the first piece of information announced by screen readers when a PDF is opened. When titles are vague, auto-generated, or non-descriptive, it becomes harder for users, particularly those using assistive technologies, to identify and differentiate between documents, especially when multiple PDFs are open or saved locally. Document permalinks should be structured consistently across the service while still being specific. A good format to follow is: [Document type]-[Document version]-[Month]-[Year] . e.g. civil-procedure-rules-update-no-56-and-57-march-2024 instead of cpr_update56_57_pdf-1 . It is possible to update the document permalink at any time without breaking existing links to the document. Changes should only be made to improve the accessibility of a permalink, and frequent changes should be avoided. Schedule publication . A document can be scheduled for publication, by setting a published date in the future. | Click the Edit button next to the Publish Date. | Set the date and time you want the document to be published. | Click OK. | Click Schedule. | . See the screenshot for the location of the Published on Edit link. Gotchas . | If you don’t set the document’s Visibility to Public, then the document will not be accessible to the public. This is an easy step to miss, as the default visibility is Private, and as a logged in editor you will be able to see the document regardless of its visibility setting. | Setting a published date in the future is OK when creating a document, but be aware that it is not useful for scheduling a revision, because it will take all versions of the document offline until the scheduled date. | . ",
+    "url": "/editing/documents.html#uploading-a-document",
+    
+    "relUrl": "/editing/documents.html#uploading-a-document"
+  },"16": {
+    "doc": "Documents",
+    "title": "Verifying a successful document upload",
+    "content": "From the document edit page, you can verify that the document has been published successfully by checking the following: . | Right click on the permalink and selecting: Open link in new Incognito window. This will open the document in a new browser window where you are not logged in. If you can see the document, then it has been published successfully. | The document should either display in the browser, or start downloading to your computer. | . Another way to identify documents that have not been published is from the list view. | On the Sidebar, click Documents &gt; All Documents. | At the top of the screen, you’ll see a list of document statuses, e.g. Published, Pending, Private… with the number of documents in each status. You can click these to show the documents with that status. | Ensure that the number of documents with each status is as expected. | . From the Documents view, we can also see the number of revisions and attachments for each document. This can be useful in identifying any documents where an upload was not completed, or failed. ",
+    "url": "/editing/documents.html#verifying-a-successful-document-upload",
+    
+    "relUrl": "/editing/documents.html#verifying-a-successful-document-upload"
+  },"17": {
+    "doc": "Documents",
+    "title": "Linking to a document from a page",
+    "content": "To link to a document from a page, follow these steps: . | Copy the Document’s permalink, either: . | from the document’s edit page | or, in the Documents view, hover the document and right-click on View, then click Copy link address. | . | Go to the page you want to link from, and click Edit. | Highlight the text you want to link from, and click the Link icon button - it’s alongside the bold and italic buttons. | Paste the permalink into the URL field. | Press the ENTER key to add the link. | Click Update to save your changes. | . ",
+    "url": "/editing/documents.html#linking-to-a-document-from-a-page",
+    
+    "relUrl": "/editing/documents.html#linking-to-a-document-from-a-page"
+  },"18": {
+    "doc": "Documents",
+    "title": "Uploading a new version of a document",
+    "content": "This process is similar to uploading a new document, but with a few differences: . | Click Documents &gt; All Documents in the Sidebar. | Find the document you want by searching and/or sorting. Alternatively, if you know the document’s URL, you can append /_admin and it will take you to the edit page. | Click Upload New Version to select the document file from your computer. | Add a Revision Summary if necessary. | Click Update. | Verify the document has been published successfully, by following the steps in the Verify section. | . At this stage you should avoid updating the permalink, as this will break any existing links to the document. ",
+    "url": "/editing/documents.html#uploading-a-new-version-of-a-document",
+    
+    "relUrl": "/editing/documents.html#uploading-a-new-version-of-a-document"
+  },"19": {
+    "doc": "Documents",
+    "title": "Scheduling a revision",
+    "content": "TODO . ",
+    "url": "/editing/documents.html#scheduling-a-revision",
+    
+    "relUrl": "/editing/documents.html#scheduling-a-revision"
+  },"20": {
+    "doc": "Documents",
+    "title": "Documents",
+    "content": " ",
+    "url": "/editing/documents.html",
+    
+    "relUrl": "/editing/documents.html"
+  },"21": {
+    "doc": "HowTo for Content Editors",
+    "title": "HowTo for Content Editors",
+    "content": "Welcome to the HowTo Guide for Justice UK admin pages. Guides to creating, editing and scheduling content. A link to this HowTo, along with a link to support, is found at the top left corner of the website. ",
+    "url": "/",
+    
+    "relUrl": "/"
+  },"22": {
+    "doc": "Pages",
+    "title": "Table of contents",
+    "content": ". | Overview | Creating a new page . | Editing page content | Additional page settings . | Title tag setting | . | Publishing a new page immediately | Scheduling a new page for publication | Gotchas | . | Updating or editing an existing a page . | Direct editing of a page | Scheduling a revision to an existing page | Verifying a scheduled revision | Gotchas | . | Q &amp; A . | How do I save a page in draft status and find the draft page to re-edit at a later time? | How do I delete a draft page? | How do I cancel a revision to a page? | . | . ",
+    "url": "/editing/pages.html#table-of-contents",
+    
+    "relUrl": "/editing/pages.html#table-of-contents"
+  },"23": {
+    "doc": "Pages",
+    "title": "Overview",
+    "content": ". | Publish | Page | Publish immediately | Settings | . Screenshot of the Page edit screen ",
+    "url": "/editing/pages.html#overview",
+    
+    "relUrl": "/editing/pages.html#overview"
+  },"24": {
+    "doc": "Pages",
+    "title": "Creating a new page",
+    "content": "The justice website makes extensive use of page hierarchies to organise content. When creating a new page, you will need to correctly set the parent page: it will determine the URL of the page, and where it will appear in the site’s navigation. To set the parent page at the same time as creating a new page: . | Tree View | Add New page | Title | Add | . Screenshot of the Page Tree View screen . | From the Sidebar, click Pages &gt; Tree View. | Navigate the page tree to find the parent page. | Hover the parent page to and click ‘Add new inside’. | Enter the page title(s). You have the option to create multiple pages at once, but there is less risk of error if you create one page at a time. | Click Add. | . Editing page content . For details on how to edit page content, see the Block editor documentation. Additional page settings . When editing a page, you can set additional settings. It’s more likely that these will be set when creating a new page, rather than editing an existing page. These settings can be accessed by clicking Page towards the top right of the page editor. The most used settings are: . | Navigation . | Short title | Title tag | . | Meta data . | Show updated at | Modified at (override) | . | Panels . | Show menu | Show brand panel | . | Sections | Audiences | Page Attributes . | Parent | . | . See the screenshot for the location of the Page tab and Settings fields. Title tag setting . Each page should have a unique, descriptive title that accurately reflects its purpose and content. Page titles should be structured consistently across the service while still being specific. A good format to follow is: [Page-specific title] – [Area of the website] – Justice UK . e.g. | Glossary – Family Procedure Rules – Justice UK | Standard directions – Civil Procedure Rules – Justice UK | . The trailing “– Justice UK” is added automatically, so you do not need to include it in the title tag. Publishing a new page immediately . To publish a page immediately, click the Publish button in the top right corner of the page editor. See the screenshot for the location of the Publish button. Scheduling a new page for publication . A new page can be scheduled for publication, by setting a published date in the future. | Navigate to to Page &gt; Publish in the top right corner and click the Immediately button. | Set the date and time you want the page to be published. | Click x. | Click Schedule. | Verify the details and click Schedule again. | . See the screenshot for the location of the Publish Immediately link. Gotchas . Setting a published date in the future is OK when creating a new page, but be aware that it is not useful for scheduling a revision, because it will take the page offline until the scheduled date. ",
+    "url": "/editing/pages.html#creating-a-new-page",
+    
+    "relUrl": "/editing/pages.html#creating-a-new-page"
+  },"25": {
+    "doc": "Pages",
+    "title": "Updating or editing an existing a page",
+    "content": "Pages can be edited one of 2 ways, either directly or by creating a new revision. Direct editing will update the page immediately, and my be appropriate to fix a broken link or a typo. Scheduling a revision will allow you to make changes to a page that will go live at a later date, and is appropriate for updating pages as legislation is updated. The above screenshot shows the ‘Edit Page’ and ‘New Revision’ links. Direct editing of a page . | Edit a page with one of the following methods: . | From the Dashboard Sidebar, click Pages &gt; All Pages. Click the page you want to edit. | From the website view, navigate to the page you want to edit. Click the Edit button in the top bar. | . | Make the desired changes. | Click Update to save your changes. | The changes can be seen immediately on the website, by clicking the View Page button, next to Update. | . Scheduling a revision to an existing page . | Create a new revision with one of the following methods: . | From the Dashboard Sidebar, click Pages &gt; All Pages. Hover the page to reveal a New Revision link. | From the website view, navigate to the page you want to edit. Click the New Revision button in the top bar. | In the edit view of an existing page, click on the New Revision button on the right hand side. The view will update, click the ‘Edit Revision’ button. | . | Make the desired changes. | Update the Publish field to the date/time that you want the revision to go live. | Click Submit, then Preview this Revision. If you’re happy with the preview click on the Approve button in the top bar. | . The above screenshot shows a preview of a revision, with the ‘Approve’ button. Verifying a scheduled revision . It’s important to approve revisions, otherwise it will not be published. You can verify that the revision has been published successfully by checking the following: . | Click Revisions &gt; Revision Queue from the Sidebar. | Any revisions with a status of Scheduled will go live at the time specified in the Schedule column. | Any revisions with a status of Submitted will not go live until they are approved. | . The above screenshot shows the Revision Queue, note the Status column. After the schedule time has passed, the revision will be live and will not be shown in the revision queue. To see revisions that have gone live (and direct edits), click Revisions &gt; Revision Archive from the Sidebar. The above screenshot shows the Revision Archive. Gotchas . When updating a page, ensure that you have correct page settings, in particular: check ‘Meta data’ &gt; ‘Modified at (override)’. Set this field, if you want to show a custom Updated date. Unset this field, if you want the page to show the last time it was updated. ",
+    "url": "/editing/pages.html#updating-or-editing-an-existing-a-page",
+    
+    "relUrl": "/editing/pages.html#updating-or-editing-an-existing-a-page"
+  },"26": {
+    "doc": "Pages",
+    "title": "Q &amp; A",
+    "content": "How do I save a page in draft status and find the draft page to re-edit at a later time? . This is a 2 part answer depending on whether you are working on a new page, or an existing page. If you are working on a new page, you can create a page as usual - as in the ‘Creating a new page’ section. After editing, click Save Draft in the top right corner of the page editor. To find this page at a later date, you can navigate to it via Pages &gt; Tree View. Alternatively, go to Pages &gt; All Pages and click the Drafts tab towards the top of the screen. If you are working on an existing page, you should create a new revision, not a draft. Follow the steps in the ‘Scheduling a revision to an existing page’ section. Except, submit the revision, but do not approve it, until you are ready for your changes to go live or be scheduled. To find this revision at a later date, you can navigate to it via Revisions &gt; Revision Queue, it will have the status of ‘Submitted’. How do I delete a draft page? . If you have created a draft page, and no longer need it, you can delete it by following these steps: . | From the Sidebar, click Pages &gt; All Pages. | Click the Drafts tab towards the top of the screen. | Hover the page you want to delete, and click the Bin/Trash link. | . How do I cancel a revision to a page? . If you have created a revision to a page, and no longer need it, you can cancel it by following these steps: . | From the Sidebar, click Revisions &gt; Revision Queue. | Hover the revision you want to cancel, and click the Delete link. | . ",
+    "url": "/editing/pages.html#q--a",
+    
+    "relUrl": "/editing/pages.html#q--a"
+  },"27": {
+    "doc": "Pages",
+    "title": "Pages",
+    "content": " ",
+    "url": "/editing/pages.html",
+    
+    "relUrl": "/editing/pages.html"
+  },"28": {
+    "doc": "Redirects",
+    "title": "Table of contents",
+    "content": ". | Overview | . ",
+    "url": "/editing/redirects.html#table-of-contents",
+    
+    "relUrl": "/editing/redirects.html#table-of-contents"
+  },"29": {
+    "doc": "Redirects",
+    "title": "Overview",
+    "content": "Due to the dynamic nature of the content on this website, it may be necessary to change or delete a page or document. When this happens, it is important to create a redirect to ensure that users are not met with a 404 error when trying to access the old URL. To create a redirect, please contact the Central Digital Product Team via the Support button at the top left corner of the website’s dashboard. Include the following information in your request: . | The old URL that you want to redirect from. | The new URL that you want to redirect to. | Any additional notes or comments, to be stored internally for future reference (optional). | . ",
+    "url": "/editing/redirects.html#overview",
+    
+    "relUrl": "/editing/redirects.html#overview"
+  },"30": {
+    "doc": "Redirects",
+    "title": "Redirects",
+    "content": " ",
+    "url": "/editing/redirects.html",
+    
+    "relUrl": "/editing/redirects.html"
+  }
+}
