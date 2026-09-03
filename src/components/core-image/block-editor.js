@@ -1,8 +1,9 @@
 import domReady from "@wordpress/dom-ready";
+import { getCanvasDocument, whenCanvasReady } from "../../js/block-editor/canvas";
 
-domReady(() => {
+domReady(async () => {
     const checkImages = () => {
-        const images = document.querySelectorAll('.editor-styles-wrapper img');
+        const images = getCanvasDocument().querySelectorAll('.editor-styles-wrapper img');
         images.forEach(img => {
             const src = img.getAttribute('src');
             if (
@@ -15,27 +16,23 @@ domReady(() => {
         });
     };
 
-    const waitForEditorWrapper = () => {
-        const target = document.querySelector('.editor-styles-wrapper');
-        if (target) {
-            // Initial check
-            checkImages();
+    // Wait for the canvas to be rendered - it is iframed and loads after domReady.
+    const target = await whenCanvasReady();
+    if (!target) {
+        return;
+    }
 
-            // Observe changes
-            const observer = new MutationObserver(() => {
-                checkImages();
-            });
+    // Initial check
+    checkImages();
 
-            observer.observe(target, {
-                childList: true,
-                subtree: true,
-                attributes: true,
-            });
-        } else {
-            // Retry after a short delay
-            setTimeout(waitForEditorWrapper, 300);
-        }
-    };
+    // Observe changes
+    const observer = new MutationObserver(() => {
+        checkImages();
+    });
 
-    waitForEditorWrapper();
+    observer.observe(target, {
+        childList: true,
+        subtree: true,
+        attributes: true,
+    });
 });
