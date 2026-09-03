@@ -27,8 +27,8 @@ class BlockEditor
 
     public function registerBlocks()
     {
-        register_block_type('moj/inline-menu', ['render_callback' => [$this, 'inlineMenu']]);
-        register_block_type('moj/search', ['render_callback' => [$this, 'search']]);
+        register_block_type('moj/inline-menu', ['api_version' => 3, 'render_callback' => [$this, 'inlineMenu']]);
+        register_block_type('moj/search', ['api_version' => 3, 'render_callback' => [$this, 'search']]);
     }
 
     /**
