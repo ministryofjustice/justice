@@ -124,6 +124,9 @@ class Documents
         // Dequeue the frontend styles, we don't need them.
         add_action('wp_enqueue_scripts', fn() => wp_dequeue_style('wp-document-revisions-front'), 100);
 
+        // Unregister document blocks, priority above WPDR's 100 for registering.
+        add_action('wp_loaded', [self::class, 'unregisterBlocks'], 110);
+
         // Filter wp_die handler for documents - to change 403 to 404 for missing document files.
         add_filter('wp_die_handler', [self::class, 'filterWpDieHandler']);
 
@@ -904,6 +907,20 @@ class Documents
             $filesize = $attached_file ? (@filesize($attached_file) ?: null) : null;
         }
         return size_format($filesize);
+    }
+
+
+    /**
+     * Unregister the document blocks
+     *
+     * @return void
+     */
+
+    public static function unregisterBlocks(): void
+    {
+        unregister_block_type('wp-document-revisions/documents-shortcode');
+        unregister_block_type('wp-document-revisions/documents-widget');
+        unregister_block_type('wp-document-revisions/revisions-shortcode');
     }
 
 
