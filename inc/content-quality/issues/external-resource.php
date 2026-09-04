@@ -160,10 +160,10 @@ final class ContentQualityIssueExternalResource extends ContentQualityIssue
 
         $allowed_hosts = [
             'www.justice.gov.uk',
-            'dev.justice.gov.uk',
-            'staging.justice.gov.uk',
-            'demo.justice.gov.uk',
-            'justice.docker',
+            'dev.websitebuilder.service.justice.gov.uk',
+            'staging.websitebuilder.service.justice.gov.uk',
+            'demo.websitebuilder.service.justice.gov.uk',
+            'hale.docker',
         ];
 
         // Create a new DOMDocument instance to parse the HTML content.

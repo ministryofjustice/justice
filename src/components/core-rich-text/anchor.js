@@ -8,6 +8,7 @@ import { Fragment, useState } from "@wordpress/element";
 import { store as preferencesStore } from "@wordpress/preferences";
 import { applyFormat, toggleFormat, useAnchor } from "@wordpress/rich-text";
 import { TfiAnchor } from "react-icons/tfi";
+import { whenCanvasReady } from "../../js/block-editor/canvas";
 
 /**
  * This file adds support for anchor destinations to rich-text content in the block editor.
@@ -116,6 +117,31 @@ let editorMode;
 let showIcons;
 
 /**
+ * The class that, when set on the canvas body, shows the anchor icons.
+ * @see ./anchor.scss
+ */
+
+const variationClassname = "show-moj-anchor-icons";
+
+/**
+ * Add or remove the anchor icons class, according to the user's preference.
+ *
+ * The class goes on the canvas document's body, because that is where
+ * anchor.scss is loaded - since WordPress 7.1 that is always an iframe.
+ * It is applied again whenever the canvas is re-created.
+ *
+ * @returns {Promise<void>}
+ */
+
+const applyShowIconsClass = async () => {
+  const wrapper = await whenCanvasReady();
+  wrapper?.ownerDocument.body.classList.toggle(
+    variationClassname,
+    Boolean(showIcons),
+  );
+};
+
+/**
  * Subscribe to the editorMode change.
  *
  * When the editorMode changes to "visual", format legacy anchor links. E.g.
@@ -145,8 +171,17 @@ subscribe(async () => {
   // Wait for the visual editor to be ready.
   await visualEditorIsReady();
 
+  // Wait for the canvas to be rendered. Switching back from the code editor re-creates it.
+  const wrapper = await whenCanvasReady();
+  if (!wrapper) {
+    return;
+  }
+
+  // Re-apply the anchor icons class, which is lost when the canvas is re-created.
+  applyShowIconsClass();
+
   // Format legacy anchor links - target only anchors that have a name and id, but no href or class.
-  document
+  wrapper
     .querySelectorAll("a[name][id]:not([href]):not([class])")
     .forEach((a) => {
       // Add a class to the anchor.
@@ -159,7 +194,7 @@ subscribe(async () => {
     });
   
   // Ensure all existing anchors have a non-breaking space if their text is empty.
-  document
+  wrapper
     .querySelectorAll("a[name][id]:not([href]).moj-anchor")
     .forEach((a) => {
       // If anchor text is empty, add a non-breaking space - for compatibility and so the editor can see it.
@@ -190,13 +225,7 @@ subscribe(async () => {
 
   showIcons = newShowIcons;
 
-  const variationClassname = "show-moj-anchor-icons";
-
-  if (showIcons) {
-    document.body.classList.add(variationClassname);
-  } else {
-    document.body.classList.remove(variationClassname);
-  }
+  applyShowIconsClass();
 });
 
 /**
