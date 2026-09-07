@@ -2,12 +2,13 @@
 name: Deploy Documentation
 
 on:
-  # Runs on pushes targeting main - only if the .github/pages directory changes
+  # Runs on pushes targeting main - only if the docs site, theme PHP or phpdoc config changes
   push:
     branches: ["main"]
     paths:
       - ".github/pages/**"
-      - "public/app/*.php"
+      - "**/*.php"
+      - "phpdoc.dist.xml"
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
