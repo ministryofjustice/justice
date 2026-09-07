@@ -11,3 +11,5 @@
 dist
 node_modules
 
+# Jekyll build output (built in CI by .github/workflows/gh-pages.yml)
+.github/pages/_site
