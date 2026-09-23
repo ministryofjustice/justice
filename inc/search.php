@@ -50,8 +50,8 @@ class Search
         // https://www.relevanssi.com/knowledge-base/publishpress-revisions-duplicate-posts/
         add_action('revision_applied', fn($published, $revision) => relevanssi_remove_doc($revision->ID), 10, 2);
 
-        // Redirect the user to the search page if the URI contains multiple pages.
-        add_action('init', [$this, 'redirectMultiplePageInURI'], 1);
+        // Return 404 if the URI contains multiple pages - crawler loops, see rejectMultiplePageInURI.
+        add_action('init', [$this, 'rejectMultiplePageInURI'], 1);
 
         // Redirect the user to the search page if there are arrays in the the query string.
         add_action('init', [$this, 'redirectIfQueryStringHasArrays'], 1);
@@ -131,9 +131,10 @@ class Search
      *
      * @param string $search The search query.
      * @param array $args An array of query parameters to add or modify.
+     * @param int $page The results page to link to. Page 1 has no /page/ segment.
      * @return string The URL for the search results.
      */
-    public static function getSearchUrl($search, $args = [])
+    public static function getSearchUrl($search, $args = [], int $page = 1)
     {
         $url_append = '';
         $pass_through_params = ['parent', 'post_types', 'orderby', 'section', 'organisation', 'type', 'audience'];
@@ -162,7 +163,9 @@ class Search
         // Unslash because wp adds \ before quotes. Then immediately urlencode.
         $encoded_search = is_string($search) ? urlencode(wp_unslash($search)) : '';
 
-        return home_url('/search/' . $encoded_search .  $url_append);
+        $page_segment = $page > 1 ? '/page/' . $page : '';
+
+        return home_url('/search/' . $encoded_search . $page_segment . $url_append);
     }
 
     /**
@@ -434,6 +437,16 @@ class Search
     /**
      * Get the pagination arguments for the search results.
      *
+     * Page links are built from the parsed search term with getSearchUrl(), not
+     * from the request URI. get_pagenum_link() and friends rebuild links from
+     * whatever path was requested, so a malformed path - a term with extra
+     * page segments folded into it, or stray query parameters - was copied into
+     * every page link, and each crawled link produced more URLs of the same
+     * shape. In September 2026 crawlers following spam links walked thousands
+     * of these /search/<term>%2Fpage%2F3%2Fpage%2F2.../page/N URLs, each one
+     * an uncached Relevanssi search. Building from the term keeps every link
+     * canonical: /search/<term>/page/N plus the known filter parameters only.
+     *
      * @return array An array containing the previous URL, next URL, and pages.
      */
     public static function getPaginationArgs(): array
@@ -452,19 +465,23 @@ class Search
             return [];
         }
 
+        $search = get_query_var('s');
+        $current = max(1, (int) $paged);
+        $last = (int) $wp_query->max_num_pages;
+
         // Make the pages array
         $pages = [];
-        for ($i = 1; $i <= $wp_query->max_num_pages; $i++) {
+        for ($i = 1; $i <= $last; $i++) {
             $pages[] = [
-                'url' => get_pagenum_link($i),
+                'url' => self::getSearchUrl($search, [], $i),
                 'title' => $i,
-                'current' => $i === (int) $paged,
+                'current' => $i === $current,
             ];
         }
 
         return [
-            'previous_url' => (int) $paged > 1 ? get_previous_posts_page_link() : null,
-            'next_url' => get_next_posts_page_link($wp_query->max_num_pages),
+            'previous_url' => $current > 1 ? self::getSearchUrl($search, [], $current - 1) : null,
+            'next_url' => $current < $last ? self::getSearchUrl($search, [], $current + 1) : null,
             'pages' => $pages
         ];
     }
@@ -549,36 +566,50 @@ class Search
     }
 
     /**
-     * Handle malformed search URLs where the path has multiple pages.
+     * Is this a search path with more than one page segment?
      *
-     * e.g /search/the/page/page/11
+     * e.g. /search/the/page/page/11
+     * or   /search/term%2Fpage%2F3%2Fpage%2F2/page/5
+     *
+     * The path is decoded before it is checked. Spam search URLs carry their
+     * extra page segments percent-encoded inside the search term, so splitting
+     * the raw REQUEST_URI on '/' saw them as one segment and let them through.
+     *
+     * @param string $request_uri The request URI, e.g. $_SERVER['REQUEST_URI'].
+     * @return bool True if the path should be rejected.
+     */
+    public static function isMultiplePageSearchPath(string $request_uri): bool
+    {
+        $path = rawurldecode((string) parse_url($request_uri, PHP_URL_PATH));
+
+        if (!str_starts_with($path, '/search/')) {
+            return false;
+        }
+
+        // A 'page' segment, whether followed by a number, another segment or the end.
+        return preg_match_all('#/page(?=/|$)#', $path) > 1;
+    }
+
+    /**
+     * Reject malformed search URLs where the path has multiple pages.
+     *
+     * These are never generated by the theme, so they come from crawlers
+     * following planted links. A 404 tells a crawler to drop the URL; the
+     * redirect to /search this used to send is a 302, which crawlers keep
+     * retrying. Runs on init, before any search query is made.
      *
      * @return void
      */
-    public function redirectMultiplePageInURI(): void
+    public function rejectMultiplePageInURI(): void
     {
-        // Trim the first and last slash
-        $uri = trim($_SERVER['REQUEST_URI'], '/');
-        // Split the URI by '/'
-        $uri_parts = explode('/', $uri);
-
-        // Check if the URI has at least 4 parts and the first part is 'search'
-        if (sizeof($uri_parts) < 4 || $uri_parts[0] !== 'search') {
+        if (!self::isMultiplePageSearchPath($_SERVER['REQUEST_URI'] ?? '')) {
             return;
         }
 
-        // Remove the first 2 from the array
-        $uri_parts = array_slice($uri_parts, 2);
-
-        // Count the number of times 'page' appears in the $uri_parts
-        $pages_count = array_count_values($uri_parts)['page'];
-
-        if ($pages_count > 1) {
-            // Redirect to the search page
-            $url = home_url('/search');
-            wp_redirect($url);
-            exit;
-        }
+        status_header(404);
+        nocache_headers();
+        header('X-Robots-Tag: noindex, nofollow');
+        exit;
     }
 
 
