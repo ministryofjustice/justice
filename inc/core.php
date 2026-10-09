@@ -31,6 +31,10 @@ class Core
         add_filter('translations_api', fn () => []);
         // Remove Available Tools from the admin menu.
         add_action('admin_menu', [$this, 'removeSubmenus']);
+        // Remove menus that are unused or left empty. Late, after plugins have added theirs.
+        add_action('admin_menu', [$this, 'removeUnusedMenus'], 999);
+        // Disable Application Passwords (long-lived API credentials on user profiles).
+        add_filter('wp_is_application_passwords_available', '__return_false');
         // Remove the Gravatar service, and always show the default avatar.
         add_filter('pre_get_avatar', [__CLASS__, 'replaceGravatar'], 10, 3);
         // Disable the language switcher on the login page.
@@ -64,6 +68,10 @@ class Core
 
         // Disable block visibility support added in WP 6.9
         add_filter('block_type_metadata', [__CLASS__, 'disableBlockVisibilitySupport']);
+
+        // Don't render hover and responsive styles (WP 7.1 block states) saved in block attributes.
+        // The editor controls are turned off in BlockEditor::customiseSettings().
+        remove_filter('render_block', 'wp_render_block_states_support');
     }
 
     /**
@@ -111,6 +119,24 @@ class Core
         // Remove Appearance > Patterns menu,
         // the URL is still accessible to admins but that's fine.
         remove_submenu_page('themes.php', 'site-editor.php?p=/pattern');
+    }
+
+    /**
+     * Remove menus that are unused, or empty once removeSubmenus() has run.
+     *
+     * @return void
+     */
+    public function removeUnusedMenus(): void
+    {
+        global $submenu;
+
+        // Relevanssi's Dashboard > User searches. Search logging is not used.
+        remove_submenu_page('index.php', 'relevanssi_user_searches');
+
+        // Tools is empty for users with no tools left in it, e.g. editors.
+        if (empty($submenu['tools.php'])) {
+            remove_menu_page('tools.php');
+        }
     }
 
 
