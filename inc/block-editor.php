@@ -93,7 +93,7 @@ class BlockEditor
         $script_asset_path = get_template_directory() . "/dist/php/block-editor.asset.php";
         if (!file_exists($script_asset_path)) {
             throw new \Error(
-                'You need to run `npm start` or `npm run build` for "app" first.'
+                'You need to run `npm run watch` or `npm run production` in the theme root first.'
             );
         }
 
