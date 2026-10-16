@@ -74,7 +74,7 @@ class Admin
 
         if (!file_exists($script_asset_path)) {
             throw new \Error(
-                'You need to run `npm start` or `npm run build` for "app" first.'
+                'You need to run `npm run watch` or `npm run production` in the theme root first.'
             );
         }
 

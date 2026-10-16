@@ -23,6 +23,59 @@ class BlockEditor
         add_filter('the_content', [$this, 'formatBlocks']);
         add_filter('allowed_block_types_all', [$this, 'filterAllowedBlockTypes'], 10, 0);
         add_filter('block_editor_settings_all', [$this, 'customiseSettings']);
+        add_filter('wp_theme_json_data_theme', [$this, 'disableColourAndTypographyControls']);
+    }
+
+    /**
+     * Turn off the editor's colour and typography controls.
+     *
+     * Removes the palettes, gradients, duotone and font sizes, and the custom
+     * colour, drop cap, letter case, letter spacing and similar controls.
+     * Justice styling comes from the theme only.
+     *
+     * @param \WP_Theme_JSON_Data $theme_json The theme's theme.json data.
+     * @return \WP_Theme_JSON_Data
+     */
+
+    public function disableColourAndTypographyControls($theme_json)
+    {
+        return $theme_json->update_with([
+            'version' => 3,
+            'settings' => [
+                'background' => [
+                    'gradient' => false,
+                ],
+                'color' => [
+                    'background' => false,
+                    'button' => false,
+                    'caption' => false,
+                    'custom' => false,
+                    'customDuotone' => false,
+                    'customGradient' => false,
+                    'defaultDuotone' => false,
+                    'defaultGradients' => false,
+                    'defaultPalette' => false,
+                    'duotone' => [],
+                    'gradients' => [],
+                    'heading' => false,
+                    'link' => false,
+                    'palette' => [],
+                    'text' => false,
+                ],
+                'typography' => [
+                    'customFontSize' => false,
+                    'defaultFontSizes' => false,
+                    'dropCap' => false,
+                    'fontSizes' => [],
+                    'fontStyle' => false,
+                    'fontWeight' => false,
+                    'letterSpacing' => false,
+                    'lineHeight' => false,
+                    'textDecoration' => false,
+                    'textTransform' => false,
+                ],
+            ],
+        ]);
     }
 
     public function registerBlocks()
@@ -40,7 +93,7 @@ class BlockEditor
         $script_asset_path = get_template_directory() . "/dist/php/block-editor.asset.php";
         if (!file_exists($script_asset_path)) {
             throw new \Error(
-                'You need to run `npm start` or `npm run build` for "app" first.'
+                'You need to run `npm run watch` or `npm run production` in the theme root first.'
             );
         }
 
@@ -198,6 +251,12 @@ class BlockEditor
 
         // Disable font library functionality in the block editor settings
         $settings['fontLibraryEnabled'] = false;
+
+        // Disable hover and responsive styles (WP 7.1 block states).
+        // Hides the Hover/Focus/Active control in the block card (Button and Navigation Link only).
+        $settings['blockStatesEditingEnabled'] = false;
+        // Hides "Responsive styles" in the View menu, so Tablet and Mobile only preview.
+        $settings['responsiveEditingEnabled'] = false;
 
         return $settings;
     }

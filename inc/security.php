@@ -93,6 +93,30 @@ class Security
 
         // Log requests to unknown hosts.
         add_filter('pre_http_request', [$this, 'logUnknownHostRequests'], 20, 3);
+
+        // No account may save unfiltered HTML. Last, to override hale-components.
+        add_filter('map_meta_cap', [__CLASS__, 'disallowUnfilteredHtml'], PHP_INT_MAX, 2);
+    }
+
+    /**
+     * Disallow unfiltered_html for every account, super admins included.
+     *
+     * hale-components grants unfiltered_html to everyone who can edit pages, which
+     * lets script be saved in content. Script saved by one user runs for any user
+     * who views it, including super admins. Without unfiltered_html, WordPress
+     * filters saved content through kses. 'do_not_allow' also applies to super admins.
+     *
+     * @param string[] $caps The primitive capabilities required.
+     * @param string $cap The capability being checked.
+     * @return string[]
+     */
+    public static function disallowUnfilteredHtml(array $caps, string $cap): array
+    {
+        if ('unfiltered_html' === $cap) {
+            return ['do_not_allow'];
+        }
+
+        return $caps;
     }
 
     /**
